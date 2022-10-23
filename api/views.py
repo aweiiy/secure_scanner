@@ -3,18 +3,21 @@ import celery.states as states
 from flask import Response
 from flask import url_for, jsonify
 from .worker import celery
+from flask_login import login_required, current_user
 
 views = Blueprint('views', __name__)
 
 
 @views.route('/')
+@login_required
 def home():
-    return render_template("home.html")
+    return render_template("home.html", user=current_user)
 
 
-@views.route('/test')
-def start():
-    return "working"
+@views.route('/reports')
+@login_required
+def reports():
+    return render_template("reports.html", user=current_user)
 
 
 @views.route('/add/<int:param1>/<int:param2>')

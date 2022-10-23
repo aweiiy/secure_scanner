@@ -3,22 +3,6 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 30px;">
-   <div class="row">
-      <div class="col">
-      </div>
-      <div class="col-12">
-         <div class="card">
-            <div class="card-body" style=" height: 100px">
-                <p style="text-align:center">Welcome to the secure auditing tool. To get started, enter your desired website below.</p>
-            </div>
-         </div>
-      </div>
-      <div class="col">
-      </div>
-   </div>
-</div>
-
 <div class="container" style="margin-top: 100px">
    <div class="row">
       <div class="col">
@@ -29,6 +13,7 @@
                <form method="post" action="/">
 
                   <div class="mb-3">
+                     <p class="text-center">Welcome to the secure auditing tool. To get started, enter your desired website below.</p>
                      <input type="text" class="form-control" id="website" name="website" aria-describedby="websiteScan" placeholder="https://example.com">
                      <div class="form-text">Enter the website you want to securely scan.</div>
                   </div>
