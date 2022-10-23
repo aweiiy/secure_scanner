@@ -1,3 +1,5 @@
 Flask==2.0.1
 celery==5.1.2
 redis==3.5.3
+Flask-SQLAlchemy==1.4.42
+Flask-Login==0.6.2
