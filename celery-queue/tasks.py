@@ -1,5 +1,6 @@
 import os
 import time
+import subprocess
 from celery import Celery
 
 
@@ -13,3 +14,9 @@ celery = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND
 def add(x: int, y: int) -> int:
     time.sleep(5)
     return x + y
+
+@celery.task(name='tasks.generate_report')
+def generate_report(website_name: str) -> str:
+    time.sleep(5)
+    subprocess.run(['sh', 'generate_report.sh', website_name])
+    return f"Report for {website_name} generated"

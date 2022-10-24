@@ -22,11 +22,19 @@ background: linear-gradient(to right, #0b8793, #360033); /* W3C, IE 10+/ Edge, F
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
+        {% if current_user.is_authenticated %}
       <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" href="/">Home</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/reports">Reports</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/profile">Profile</a>
+        </li>
       </ul>
+        {% endif %}
         {% if current_user.is_authenticated %}
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
