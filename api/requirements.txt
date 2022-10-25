@@ -1,5 +1,5 @@
-Flask==2.0.1
-celery==5.1.2
-redis==3.5.3
+Flask==2.2.2
+celery==5.2.7
+redis==4.3.4
 Flask-SQLAlchemy==3.0.2
 Flask-Login==0.6.2

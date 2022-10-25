@@ -18,6 +18,7 @@ RUN pip install -r requirements.txt
 EXPOSE 5001
 
 RUN pip install gunicorn
-RUN pip3 install flask_sqlalchemy
+
+CMD ["pip3", "install", "flask-sqlalchemy"]
 
 CMD ["gunicorn", "--bind", "0.0.0.0:5001", "--workers", "3", "main:app"]

@@ -20,3 +20,11 @@ def generate_report(website_name: str) -> str:
     time.sleep(5)
     subprocess.run(['sh', 'generate_report.sh', website_name])
     return f"Report for {website_name} generated"
+
+#docker run --rm -it instrumentisto/nmap -A -T4 172.18.0.4
+#docker run --rm -it frapsoft/nikto -host 172.18.0.4
+#docker run --rm -it wpscanteam/wpscan --url 172.18.0.4 --random-user-agent --enumerate u
+#docker run --rm -it hypnza/dirbuster -u 172.18.0.4
+
+#
+
