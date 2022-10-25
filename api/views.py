@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, redirect, flash
 import celery.states as states
 from flask import Response, request
 from flask import url_for, jsonify
@@ -23,10 +23,6 @@ def home():
 def reports():
     return render_template("reports.html", user=current_user, reports=current_user.reports)
 
-@views.route('/profile')
-@login_required
-def profile():
-    return render_template("profile.html", user=current_user)
 
 @views.route('/api/genereate_report', methods=['POST'])
 @login_required
@@ -35,7 +31,7 @@ def generate_report():
     website_name = data.get('website')
     db.session.add(Report(name=website_name, location="test", user_id=current_user.id))
     db.session.commit()
-    task = celery.send_task('tasks.generate_report', args=[website_name], kwargs={})
+    task = celery.send_task('tasks.generate_report', args=[website_name, ], kwargs={})
     return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
 
 @views.route('/api/taskstatus/<task_id>')
@@ -46,6 +42,17 @@ def taskstatus(task_id: str) -> str:
         return res.state
     else:
         return str(res.result)
+
+
+@views.route('/api/add/<report_id>', methods=['POST'])
+def add_report_data(report_id: int) -> str:
+    data = request.form
+    report = Report.query.filter_by(id=report_id).first() # get the report
+    if report:
+        return f"Report {report_id} data: {data}"
+
+
+
 
 
 
@@ -68,3 +75,19 @@ def check_task(task_id: str) -> str:
 @views.route('/health_check')
 def health_check() -> Response:
     return jsonify("OK")
+
+
+@views.route('/reports/<int:report_id>/delete', methods=['POST'])
+@login_required
+def delete_report(report_id: int) -> str:
+    report = Report.query.filter_by(id=report_id).first()
+    if report:
+        if report.user_id == current_user.id:
+            db.session.delete(report)
+            db.session.commit()
+            flash("Report deleted", category='success')
+            return redirect(url_for('views.reports'))
+        else:
+            return "You do not have permission to delete this report"
+    else:
+        return "Report not found"

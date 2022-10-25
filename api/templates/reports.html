@@ -16,9 +16,17 @@
                     <h5 class="card-title">{{ report.name }}</h5>
                     <h6 class="card-subtitle mb-2 text-muted">{{ report.created_at }}</h6>
                     <p class="card-text">{{ report.description }}</p>
-                    <a href="/reports/{{ report.id }}" class="card-link">View</a>
-                    <a href="/reports/{{ report.id }}/edit" class="card-link">Edit</a>
-                    <a href="/reports/{{ report.id }}/delete" class="card-link">Delete</a>
+                      <div class="row">
+                          <div class="col-1">
+                            <a href="/reports/{{ report.id }}" class="btn btn-primary">View</a>
+                          </div>
+                          <div class="col-1">
+                              <form action="/reports/{{ report.id }}/delete" method="POST">
+                                  <input type="hidden" name="_method" value="DELETE">
+                                  <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                          </div>
+                      </div>
                   </div>
                 </div>
                 {% endfor %}
