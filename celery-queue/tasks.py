@@ -32,8 +32,6 @@ def ansible_playbook(website_name: str, report_id: int) -> str:
 #docker run --rm -it wpscanteam/wpscan --url 172.18.0.4 --random-user-agent --enumerate u
 #docker run --rm -it hypnza/dirbuster -u 172.18.0.4
 
-#sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 193.219.91.103 > /tmp/1.xml ; curl --data-binary "@/tmp/1.xml" http://127.0.0.1:5001/api/add/1
-#sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 193.219.91.103 > /tmp/1.txt
-#curl -X POST -d "userId=5&title=Post Title&body=Post content." http://127.0.0.1:5001/api/add/1
 
-#sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 -oX /tmp/1.xml 193.219.91.103; cat /tmp/1.xml | curl --data-binary "@/tmp/1.xml" http://127.0.0.1:5001/api/add/1
+#sudo docker run --rm -it frapsoft/nikto -host {website_name} -output /tmp/{report_id}.txt > /tmp/{report_id}.txt | curl -F "file=@/tmp/{report_id}.txt" http://127.0.0.1:5001/api/add/{report_id
+#sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 193.219.91.103 > /tmp/1.xml ; curl --data-binary "@/tmp/1.xml" http://127.0.0.1:5001/api/add/1
