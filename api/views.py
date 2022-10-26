@@ -45,11 +45,11 @@ def taskstatus(task_id: str) -> str:
 
 
 @views.route('/api/add/<report_id>', methods=['POST'])
-def add_report_data(report_id: int) -> str:
+def add_report_data(report_id: int):
     data = request.form
-    report = Report.query.filter_by(id=report_id).first() # get the report
-    if report:
-        return f"Report {report_id} data: {data}"
+    report = Report.query.filter_by(id=report_id).first()
+    #if report:
+    return f'added {data} to {report.name}\n'
 
 
 
