@@ -1,6 +1,7 @@
 import os
 import time
 import subprocess
+import requests
 from celery import Celery
 
 
@@ -18,11 +19,25 @@ def add(x: int, y: int) -> int:
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
     time.sleep(5)
-    ansible_playbook(website_name, report_id)
-    return f"Report for {website_name} generated"
+    try:
+        ansible_playbook(website_name, report_id)
+        while True:
+            URL = f'http://127.0.0.1:5001/api/check_count/'
+            data = {'report_id': report_id}
+            auth = ('admin', 'admin')
+            r = requests.post(url=URL, data=data, auth=auth)
+
+            if r.text == '3':
+                break
+            else:
+                time.sleep(1)
+
+    except Exception as e:
+        return f"Error: {e}"
+
 
 def ansible_playbook(website_name: str, report_id: int) -> str:
-    subprocess.run([f'sudo docker run --rm -it instrumentisto/nmap -A -T4 -oX /tmp/{report_id}.xml {website_name} > /tmp/{report_id}.xml | curl --data-binary "@/tmp/{report_id}.xml" http://127.0.0.1:5001/api/add/{report_id}'])
+    subprocess.run([f'docker run --rm --entrypoint sh instrumentisto/nmap -c "nmap -A -T5 -p 5001 -oX /tmp/1.xml 127.0.0.1 && curl -F "file=@/tmp/1.xml" http://127.0.0.1:5001/api/add/{report_id}"'])
     #subprocess.run(['ansible', 'srv_2', '-m', 'shell', '-a', f'sudo docker run --rm -it frapsoft/nikto -host {website_name} -output /tmp/{report_id}.txt > /tmp/{report_id}.txt | curl -F "file=@/tmp/{report_id}.txt" http://127.0.0.1:5001/api/add/{report_id}'])
     #subprocess.run(['ansible', 'srv_1', '-m', 'shell', '-a', f'sudo docker run --rm -it wpscanteam/wpscan --url {website_name} --format txt --output /tmp/{report_id}.txt > /tmp/{report_id}.txt | curl -F "file=@/tmp/{report_id}.txt" http://127.0.0.1:5001/api/add/{report_id}'])
     return f"Ansible playbook executed"

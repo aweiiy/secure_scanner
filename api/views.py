@@ -1,3 +1,5 @@
+import os
+
 from flask import Blueprint, render_template, redirect, flash
 import celery.states as states
 from flask import Response, request
@@ -7,6 +9,7 @@ from .models import Report
 from .worker import celery
 from flask_login import login_required, current_user
 from . import db
+import validators
 
 
 views = Blueprint('views', __name__)
@@ -29,27 +32,61 @@ def reports():
 def generate_report():
     data = request.form
     website_name = data.get('website')
-    db.session.add(Report(name=website_name, location="test", user_id=current_user.id))
-    db.session.commit()
-    task = celery.send_task('tasks.generate_report', args=[website_name, ], kwargs={})
-    return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
-
-@views.route('/api/taskstatus/<task_id>')
-@login_required
-def taskstatus(task_id: str) -> str:
-    res = celery.AsyncResult(task_id)
-    if res.state == states.PENDING:
-        return res.state
+    if validators.url(website_name):
+        report = Report(name=website_name, task_id='' , user_id=current_user.id)
+        db.session.add(report)
+        db.session.commit()
+        task = celery.send_task('tasks.generate_report', args=[website_name, report.id])
+        report.task_id = task.id
+        db.session.commit()
+        os.mkdir(f'reports/{report.id}')
+        flash("Report generation started", category='success')
+        return redirect(url_for('views.reports'))
+        #return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
     else:
-        return str(res.result)
+        flash("Invalid URL, use http:// or https://", category='error')
+        return redirect(url_for('views.home'))
+
+@views.route('/reports/<report_id>')
+@login_required
+def show_report(report_id):
+    report = Report.query.get(report_id)
+    if report:
+        if report.user_id == current_user.id:
+            res = celery.AsyncResult(report.task_id)
+            if res.state == states.SUCCESS:
+                return render_template("report.html", user=current_user, report=report, task_id=report.task_id)
+            else:
+                flash("Report is not ready yet", category='error')
+                return render_template("report.html", user=current_user, report=report, task_id=report.task_id)
+
+
+
+@views.route('/reports/check_status/', methods=['POST'])
+def taskstatus():
+    task_id = request.form.get('task_id')
+    res = celery.AsyncResult(task_id)
+    if res.state == states.SUCCESS:
+        return jsonify({'status': 'Ready to download'})
+    else:
+        return jsonify({'status': 'PENDING'})
+
 
 
 @views.route('/api/add/<report_id>', methods=['POST'])
-def add_report_data(report_id: int):
-    data = request.form
-    report = Report.query.filter_by(id=report_id).first()
-    #if report:
-    return f'added {data} to {report.name}\n'
+def add_report_file(report_id: int):
+    auth = request.authorization
+    #curl -u admin:admin -F "file=@nmap" 127.0.0.1:5001/api/add/1
+    if auth and auth.username == 'admin' and auth.password == 'admin':
+        report = Report.query.get(report_id)
+        if report:
+            file = request.files['file']
+            file.save(f'reports/{report_id}/{file.filename}')
+            return Response(status=200)
+        else:
+            return Response(status=404)
+    else:
+        return Response(status=401)
 
 
 
@@ -85,9 +122,24 @@ def delete_report(report_id: int) -> str:
         if report.user_id == current_user.id:
             db.session.delete(report)
             db.session.commit()
+            os.rmdir(f'reports/{report.id}')
             flash("Report deleted", category='success')
             return redirect(url_for('views.reports'))
         else:
             return "You do not have permission to delete this report"
     else:
         return "Report not found"
+
+
+@views.route('/api/count_files', methods=['POST'])
+def count_files():
+    if request.authorization.username == 'admin' and request.authorization.password == 'admin':
+        data = request.form
+        report_id = data.get('report_id')
+        report = Report.query.get(report_id)
+        if report:
+            return jsonify({'count': len(os.listdir(f'reports/{report.id}'))})
+        else:
+            return jsonify({'count': 0})
+    else:
+        return jsonify({'count': 0})
