@@ -19,21 +19,20 @@ def add(x: int, y: int) -> int:
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
     time.sleep(5)
-    try:
-        ansible_playbook(website_name, report_id)
-        while True:
-            URL = f'http://127.0.0.1:5001/api/check_count/'
-            data = {'report_id': report_id}
-            auth = ('admin', 'admin')
-            r = requests.post(url=URL, data=data, auth=auth)
+    while True:
+        URL = f'http://web:5001/api/count_files/{report_id}'
+        r = requests.get(url = URL)
+        data = r.json()
+        if data == 2:
+            URL = f'http://web:5001/api/merge_files/{report_id}'
+            requests.post(url = URL, auth=('admin', 'admin'))
+            break
+        time.sleep(10)
+    return 'Report generated'
 
-            if r.text == '3':
-                break
-            else:
-                time.sleep(1)
 
-    except Exception as e:
-        return f"Error: {e}"
+
+
 
 
 def ansible_playbook(website_name: str, report_id: int) -> str:

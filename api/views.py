@@ -1,5 +1,6 @@
 import os
 
+import FPDF as FPDF
 from flask import Blueprint, render_template, redirect, flash
 import celery.states as states
 from flask import Response, request
@@ -131,15 +132,40 @@ def delete_report(report_id: int) -> str:
         return "Report not found"
 
 
-@views.route('/api/count_files', methods=['POST'])
-def count_files():
-    if request.authorization.username == 'admin' and request.authorization.password == 'admin':
-        data = request.form
-        report_id = data.get('report_id')
-        report = Report.query.get(report_id)
-        if report:
-            return jsonify({'count': len(os.listdir(f'reports/{report.id}'))})
-        else:
-            return jsonify({'count': 0})
+@views.route('/api/count_files/<int:report_id>', methods=['GET'])
+def count_files(report_id: int) -> str:
+    report = Report.query.filter_by(id=report_id).first()
+    if report:
+        return jsonify(len(os.listdir(f'reports/{report.id}')))
     else:
-        return jsonify({'count': 0})
+        return "Report not found"
+
+
+@views.route('/api/merge_reports/<int:report_id>', methods=['POST'])
+def merge_reports(report_id: int) -> str:
+    if request.authorization.username == 'admin' and request.authorization.password == 'admin':
+        report = Report.query.filter_by(id=report_id).first()
+        if report:
+            files = os.listdir(f'reports/{report.id}')
+            with open(f'reports/{report.id}/merged.txt', 'w') as outfile:
+                for fname in files:
+                    with open(f'reports/{report.id}/{fname}') as infile:
+                        outfile.write(infile.read())
+            convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/merged.pdf')
+            return Response(status=200)
+        else:
+            return Response(status=404)
+
+def convert_pdf(txt_file, pdf_file):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    with open(txt_file, 'r') as f:
+        for x in f:
+            pdf.cell(200, 10, txt=x, ln=1, align='L')
+    pdf.output(pdf_file)
+
+
+@views.route('/admin')
+def admin():
+    return render_template("admin/admin.html", user=current_user, reports=Report.query.all())
