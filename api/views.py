@@ -1,6 +1,5 @@
 import os
 
-import FPDF as FPDF
 from flask import Blueprint, render_template, redirect, flash
 import celery.states as states
 from flask import Response, request
@@ -11,6 +10,7 @@ from .worker import celery
 from flask_login import login_required, current_user
 from . import db
 import validators
+import shutil
 
 
 views = Blueprint('views', __name__)
@@ -121,9 +121,10 @@ def delete_report(report_id: int) -> str:
     report = Report.query.filter_by(id=report_id).first()
     if report:
         if report.user_id == current_user.id:
+            celery.control.revoke(report.task_id, terminate=True)
             db.session.delete(report)
             db.session.commit()
-            os.rmdir(f'reports/{report.id}')
+            shutil.rmtree(f'reports/{report_id}')
             flash("Report deleted", category='success')
             return redirect(url_for('views.reports'))
         else:
@@ -136,6 +137,9 @@ def delete_report(report_id: int) -> str:
 def count_files(report_id: int) -> str:
     report = Report.query.filter_by(id=report_id).first()
     if report:
+        if len(os.listdir(f'reports/{report.id}')) == 2:
+            report.status = 'Ready'
+            db.session.commit()
         return jsonify(len(os.listdir(f'reports/{report.id}')))
     else:
         return "Report not found"
@@ -157,13 +161,7 @@ def merge_reports(report_id: int) -> str:
             return Response(status=404)
 
 def convert_pdf(txt_file, pdf_file):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    with open(txt_file, 'r') as f:
-        for x in f:
-            pdf.cell(200, 10, txt=x, ln=1, align='L')
-    pdf.output(pdf_file)
+    return "Done"
 
 
 @views.route('/admin')

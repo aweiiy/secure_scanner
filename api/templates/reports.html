@@ -8,6 +8,12 @@
       <div class="col">
       </div>
       <div class="col-12">
+      <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Reports</li>
+  </ol>
+</nav>
          <div class="card">
             <div class="card-body">
                 <div class="card">
@@ -22,6 +28,11 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            {% if reports|length == 0 %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center;">No reports found</td>
+                                </tr>
+                            {% else %}
                                 {% for report in reports %}
                                 <tr>
                                     <td>{{ report.id }}</td>
@@ -32,10 +43,15 @@
                                         <form action="/reports/{{ report.id }}/delete" method="POST" style="display: inline;">
                                             <button type="submit" class="btn btn-danger">Delete</button>
                                         </form>
-                                        <button type="button" class="btn btn-outline-primary check_button" data-task_id="{{report.task_id}}">Check status</button>
+                                        {% if report.status == "Ready" %}
+                                            <button type="button" class="btn btn-success" onclick="window.location.href='/reports/{{ report.id }}/download'">Download</button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-outline-primary check_button" data-task_id="{{report.task_id}}">Check status</button>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}
+                            {% endif %}
                             </tbody>
                         </table>
                     </div>
