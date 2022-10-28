@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, render_template, redirect, flash
+from flask import Blueprint, render_template, redirect, flash, send_file
 import celery.states as states
 from flask import Response, request
 from flask import url_for, jsonify
@@ -42,7 +42,7 @@ def generate_report():
         report.task_id = task.id
         db.session.commit()
         os.mkdir(f'reports/{report.id}')
-        flash("Report generation started", category='success')
+        flash("Scan started, check back later for generated report.", category='success')
         return redirect(url_for('views.reports'))
         #return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
     else:
@@ -69,9 +69,9 @@ def taskstatus():
     task_id = request.form.get('task_id')
     res = celery.AsyncResult(task_id)
     if res.state == states.SUCCESS:
-        return jsonify({'status': 'Ready to download'})
+        return jsonify({'status': 'Ready to download', 'state': res.state})
     else:
-        return jsonify({'status': 'PENDING'})
+        return jsonify({'status': res.state, 'state': res.state})
 
 
 
@@ -142,7 +142,7 @@ def download_report(report_id: int) -> str:
         if report.user_id == current_user.id:
             res = celery.AsyncResult(report.task_id)
             if res.state == states.SUCCESS:
-                return render_template("download.html", user=current_user, report=report, task_id=report.task_id)
+                return send_file(f'reports/{report_id}/Generated_Report.pdf', as_attachment=True, download_name=f'{report.name}_report.pdf')
             else:
                 flash("Report is not ready yet", category='error')
                 return redirect(url_for('views.reports'))
@@ -194,3 +194,4 @@ def convert_pdf(txt_file, pdf_file):
 @views.route('/admin')
 def admin():
     return render_template("admin/admin.html", user=current_user, reports=Report.query.all())
+# TODO: Add admin panel to manage reports
