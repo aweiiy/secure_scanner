@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, redirect, flash
 import celery.states as states
 from flask import Response, request
 from flask import url_for, jsonify
+from fpdf import FPDF
 
 from .models import Report
 from .worker import celery
@@ -133,6 +134,24 @@ def delete_report(report_id: int) -> str:
         return "Report not found"
 
 
+@views.route('/reports/<int:report_id>/download', methods=['GET'])
+@login_required
+def download_report(report_id: int) -> str:
+    report = Report.query.filter_by(id=report_id).first()
+    if report:
+        if report.user_id == current_user.id:
+            res = celery.AsyncResult(report.task_id)
+            if res.state == states.SUCCESS:
+                return render_template("download.html", user=current_user, report=report, task_id=report.task_id)
+            else:
+                flash("Report is not ready yet", category='error')
+                return redirect(url_for('views.reports'))
+        else:
+            return "You do not have permission to download this report"
+    else:
+        return "Report not found"
+
+
 @views.route('/api/count_files/<int:report_id>', methods=['GET'])
 def count_files(report_id: int) -> str:
     report = Report.query.filter_by(id=report_id).first()
@@ -145,9 +164,11 @@ def count_files(report_id: int) -> str:
         return "Report not found"
 
 
-@views.route('/api/merge_reports/<int:report_id>', methods=['POST'])
-def merge_reports(report_id: int) -> str:
-    if request.authorization.username == 'admin' and request.authorization.password == 'admin':
+@views.route('/api/merge_files', methods=['POST'])
+def merge_reports() -> str:
+    auth = request.authorization
+    if auth and auth.username == 'admin' and auth.password == 'admin':
+        report_id = request.form.get('report_id')
         report = Report.query.filter_by(id=report_id).first()
         if report:
             files = os.listdir(f'reports/{report.id}')
@@ -155,13 +176,19 @@ def merge_reports(report_id: int) -> str:
                 for fname in files:
                     with open(f'reports/{report.id}/{fname}') as infile:
                         outfile.write(infile.read())
-            convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/merged.pdf')
+            convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/Generated_Report.pdf')
             return Response(status=200)
         else:
             return Response(status=404)
 
 def convert_pdf(txt_file, pdf_file):
-    return "Done"
+    with open(txt_file, 'r') as f:
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        for x in f:
+            pdf.cell(200, 10, txt=x, ln=1, align='C')
+        pdf.output(pdf_file)
 
 
 @views.route('/admin')

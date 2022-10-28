@@ -2,6 +2,7 @@ import os
 import time
 import subprocess
 import requests
+from requests.auth import HTTPBasicAuth
 from celery import Celery
 
 
@@ -24,8 +25,8 @@ def generate_report(website_name: str, report_id: int) -> str:
         r = requests.get(url = URL)
         data = r.json()
         if data == 2:
-            URL = f'http://web:5001/api/merge_files/{report_id}'
-            requests.post(url = URL, auth=('admin', 'admin'))
+            URL = f'http://web:5001/api/merge_files'
+            requests.post(url = URL, data = {'report_id': report_id}, auth=HTTPBasicAuth('admin', 'admin'))
             break
         time.sleep(10)
     return 'Report generated'
