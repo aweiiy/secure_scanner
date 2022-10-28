@@ -57,10 +57,10 @@ def show_report(report_id):
         if report.user_id == current_user.id:
             res = celery.AsyncResult(report.task_id)
             if res.state == states.SUCCESS:
-                return render_template("report.html", user=current_user, report=report, task_id=report.task_id)
+                return render_template("report.html", user=current_user, report=report, task_id=report.task_id, scan_data=report.scan_data)
             else:
                 flash("Report is not ready yet", category='error')
-                return render_template("report.html", user=current_user, report=report, task_id=report.task_id)
+                return render_template("generating.html", user=current_user, report=report, task_id=report.task_id)
 
 
 
@@ -123,10 +123,10 @@ def delete_report(report_id: int) -> str:
     if report:
         if report.user_id == current_user.id:
             celery.control.revoke(report.task_id, terminate=True)
+            flash(f"Report for {report.name} has been deleted successfully.", category='success')
             db.session.delete(report)
             db.session.commit()
             shutil.rmtree(f'reports/{report_id}')
-            flash("Report deleted", category='success')
             return redirect(url_for('views.reports'))
         else:
             return "You do not have permission to delete this report"
@@ -176,6 +176,10 @@ def merge_reports() -> str:
                 for fname in files:
                     with open(f'reports/{report.id}/{fname}') as infile:
                         outfile.write(infile.read())
+            with open(f'reports/{report.id}/merged.txt', 'r') as f:
+                report.scan_data = f.read()
+
+            db.session.commit()
             convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/Generated_Report.pdf')
             return Response(status=200)
         else:

@@ -3,30 +3,120 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 100px;">
-   <div class="row">
-      <div class="col">
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex flex-column align-items-center text-center">
+          <div class="mt-3">
+            <div id="profile-container"><img src="static/images/default_profile.jpg" alt="profile" class="rounded-circle" width="150"></div>
+            <h3 class="text-dark font-weight-normal">{{ user.email }}</h3>
+          </div>
+        </div>
+        <hr class="my-4">
+        <!--- Profile Menu -->
+        <ul id="profile_menu" class="list-group list-group-flush collapse dont-collapse-sm">
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <h6 class="mb-0"><a href="" class="text-dark">Personal info</a></h6>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <h6 class="mb-0"><a href="" class="text-dark">Account management</a></h6>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <h6 class="mb-0"><a href="" class="text-dark">My Listings</a></h6>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <h6 class="mb-0"><a href="" class="text-dark">Wishlist</a></h6>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+            <h6 class="mb-0"><a href="" class="text-dark">Logout</a></h6>
+          </li>
+        </ul>
+        <div>
+          <button class="btn btn-outline-secondary d-md-none mt-1 menuToggle" type="button" data-bs-toggle="collapse" data-bs-target="#profile_menu" aria-expanded="false" aria-controls="multiCollapseExample2">Show menu</button>
+        </div>
       </div>
-      <div class="col-12">
-                    <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">Home</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Profile</li>
-                </ol>
-            </nav>
-         <div class="card">
-            <div class="card-body">
-                <div class="card">
-                  <div class="card-body">
-                    <p>{{ user.email }}</p>
-                  </div>
-                </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex flex-column align-items-left text-left">
+          <div class="mt-3">
+            <h1>Account management</h1>
+          </div>
+        </div>
+        <hr class="my-4">
+        <div class="row align-items-center">
+          <div class="mt-1">
+            <h2>Change password</h2>
+              <form
+          </div>
+        </div>
+              <hr class="my-4">
+    <div class="d-flex flex-column align-items-left text-left">
+        <div class="mt-1">
+            <h2> Delete account</h2>
+        </div>
+    </div>
+        <div class="form-group">
+            <div class="col-sm-6">
+
+                <br>
             </div>
-         </div>
+        </div>
+    </div>
       </div>
-      <div class="col">
-      </div>
-   </div>
+    </div>
+  </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+        <script>
+        $(document).ready(function() {
+            $("#editForm").validate({
+                rules: {
+                    old_password:{
+                        required: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 8
+                    },
+                    password_confirmation: {
+                        required: true,
+                        equalTo: "#password"
+                    }
+                },
+                messages: {
+                    old_password: {
+                        required: "Please enter your old password"
+                    },
+                    password: {
+                        required: "Enter your password"
+                    },
+                    password_confirmation: {
+                        required: "Please confirm your password",
+                        equalTo: "Passwords do not match"
+                    }
+                }
+            });
+            $("#deleteUserForm").validate({
+                rules: {
+                    password: {
+                        required: true,
+                        minlength: 8
+                    },
+                },
+                messages: {
+                    password: {
+                        required: "Enter your password to delete account",
+                        minlength: "Password must be at least 8 characters long"
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock %}

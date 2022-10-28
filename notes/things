@@ -1,6 +1,7 @@
 migracijos
-validacijos
+validacijos server side
+valdiacijos client side (jquery validate)
 user profile
 admin panele
 paginate reports
-authorized report download
+authorized report download+

@@ -30,7 +30,7 @@
                             <tbody>
                             {% if reports|length == 0 %}
                                 <tr>
-                                    <td colspan="4" style="text-align: center;">No reports found</td>
+                                    <td colspan="4" style="text-align: center;">No reports found. <br> <a href="/">Start a scan here</a></td>
                                 </tr>
                             {% else %}
                                 {% for report in reports %}

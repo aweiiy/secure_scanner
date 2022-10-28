@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Report of {{ report.name }}{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+  <div class="row">
+    <div class="col"></div>
+    <div class="col-12">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="/">Home</a>
+          </li>
+          <li class="breadcrumb-item">
+            <a href="/reports">Reports</a>
+          </li>
+          <li class="breadcrumb-item active" aria-current="page">{{ report.name }}</li>
+        </ol>
+      </nav>
+      <div class="card">
+        <div class="card-body">
+          <h4>Report is being generated<span id="wait">.</span></h4>
+            <p>Stay on this page, it will automatically reload when it is ready.</p>
+
+
+<script>
+var dots = window.setInterval( function() {
+    var wait = document.getElementById("wait");
+    if ( wait.innerHTML.length > 3 )
+        wait.innerHTML = "";
+    else
+        wait.innerHTML += ".";
+    }, 500);
+</script>
+        </div>
+      </div>
+      <div class="col"></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            function LoopForever() {
+             $.ajax({
+                url: '/reports/check_status',
+                type: 'POST',
+                data: {
+                    task_id: "{{ report.task_id }}"
+                },
+                success: function(data) {
+                    if (data['state'] == 'SUCCESS') {
+                        window.location.href = '/reports/{{ report.id }}';
+                    } else {
+                        setTimeout(LoopForever, 1000);
+                    }
+                }
+            });
+            }
+        });
+    </script>
+{% endblock %}
