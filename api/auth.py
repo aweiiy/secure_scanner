@@ -22,7 +22,7 @@ def login():
                 flash('Incorrect password, try again.', category='error')
         else:
             flash('Email does not exist.', category='error')
-    return render_template("login.html")
+    return render_template("user/login.html")
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -50,9 +50,9 @@ def register():
             else:
                 flash("Email already exists", category='error')
 
-        return render_template("register.html", data=email)
+        return render_template("user/register.html", data=email)
     else:
-        return render_template("register.html")
+        return render_template("user/register.html")
 
 @auth.route('/logout')
 @login_required
@@ -63,7 +63,7 @@ def logout():
 @auth.route('/profile')
 @login_required
 def profile():
-    return render_template("profile.html", user=current_user)
+    return render_template("user/acc_manage.html", user=current_user)
 
 
 @auth.route('/profile/update', methods=['POST'])
@@ -87,7 +87,7 @@ def update_profile(id: int):
             db.session.commit()
             flash("Successfully updated the account", category='success')
 
-        return render_template("profile.html", user=current_user)
+        return render_template("user/profile_base.html", user=current_user)
 @auth.route('/profile/delete')
 @login_required
 def delete_profile():

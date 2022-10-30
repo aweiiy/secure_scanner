@@ -2,6 +2,7 @@ from flask import Flask
 from os import path
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 
@@ -25,15 +26,22 @@ def create_app():
 
     from .views import views
     from .auth import auth
+    from api.admin import admin
 
+    app.register_blueprint(admin)
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+
 
 
     from . import models
 
     with app.app_context():
         db.create_all()
+        user = models.User(email='admin@0r.lt', password=generate_password_hash('admin', method='sha256'), role=1)
+        if not models.User.query.filter_by(email=user.email).first():
+            db.session.add(user)
+            db.session.commit()
 
     return app

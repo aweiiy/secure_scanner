@@ -5,10 +5,12 @@ import celery.states as states
 from flask import Response, request
 from flask import url_for, jsonify
 from fpdf import FPDF
+from werkzeug.security import generate_password_hash
 
-from .models import Report
+from .models import Report, User
 from .worker import celery
 from flask_login import login_required, current_user
+from flask_paginate import Pagination, get_page_parameter
 from . import db
 import validators
 import shutil
@@ -26,8 +28,9 @@ def home():
 @views.route('/reports')
 @login_required
 def reports():
-    return render_template("reports.html", user=current_user, reports=current_user.reports)
-
+    page = request.args.get(get_page_parameter(), type=int, default=1)
+    pagination = Pagination(page=page, total=Report.query.count(), search=False, record_name='reports', per_page=10)
+    return render_template("user/reports.html", user=current_user, reports=Report.query.paginate(page=page, per_page=10).items, pagination=pagination)
 
 @views.route('/api/genereate_report', methods=['POST'])
 @login_required
@@ -57,7 +60,7 @@ def show_report(report_id):
         if report.user_id == current_user.id:
             res = celery.AsyncResult(report.task_id)
             if res.state == states.SUCCESS:
-                return render_template("report.html", user=current_user, report=report, task_id=report.task_id, scan_data=report.scan_data)
+                return render_template("user/report.html", user=current_user, report=report, task_id=report.task_id, scan_data=report.scan_data)
             else:
                 flash("Report is not ready yet", category='error')
                 return render_template("generating.html", user=current_user, report=report, task_id=report.task_id)
@@ -109,11 +112,6 @@ def check_task(task_id: str) -> str:
         return res.state
     else:
         return str(res.result)
-
-
-@views.route('/health_check')
-def health_check() -> Response:
-    return jsonify("OK")
 
 
 @views.route('/reports/<int:report_id>/delete', methods=['POST'])
@@ -194,8 +192,3 @@ def convert_pdf(txt_file, pdf_file):
             pdf.cell(200, 10, txt=x, ln=1, align='C')
         pdf.output(pdf_file)
 
-
-@views.route('/admin')
-def admin():
-    return render_template("admin/admin.html", user=current_user, reports=Report.query.all())
-# TODO: Add admin panel to manage reports

@@ -7,7 +7,9 @@
   <div class="row">
     <div class="col"></div>
     <div class="col-12">
-      <nav aria-label="breadcrumb">
+      <div class="card">
+        <div class="card-body">
+            <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
           <li class="breadcrumb-item">
             <a href="/">Home</a>
@@ -18,21 +20,8 @@
           <li class="breadcrumb-item active" aria-current="page">{{ report.name }}</li>
         </ol>
       </nav>
-      <div class="card">
-        <div class="card-body">
-          <h4>Report is being generated<span id="wait">.</span></h4>
-            <p>Stay on this page, it will automatically reload when it is ready.</p>
-
-
-<script>
-var dots = window.setInterval( function() {
-    var wait = document.getElementById("wait");
-    if ( wait.innerHTML.length > 3 )
-        wait.innerHTML = "";
-    else
-        wait.innerHTML += ".";
-    }, 500);
-</script>
+          <h4>Report is being generated<span id="dots">.</span></h4>
+            <p>Stay on this page, it will automatically reload when the report is ready.</p>
         </div>
       </div>
       <div class="col"></div>
@@ -44,23 +33,31 @@ var dots = window.setInterval( function() {
 
 {% block scripts %}
     <script>
-        $(document).ready(function() {
-            function LoopForever() {
-             $.ajax({
+    $(document).ready(loop());
+    function loop() {
+        setTimeout(function() {
+            $.ajax({
                 url: '/reports/check_status',
                 type: 'POST',
                 data: {
                     task_id: "{{ report.task_id }}"
                 },
                 success: function(data) {
-                    if (data['state'] == 'SUCCESS') {
+                    if (data.state == 'SUCCESS') {
                         window.location.href = '/reports/{{ report.id }}';
                     } else {
-                        setTimeout(LoopForever, 1000);
+                        loop();
                     }
                 }
             });
-            }
-        });
+        }, 30000);
+    }
+    var animate = window.setInterval( function() {
+    var dots = document.getElementById("dots");
+    if ( dots.innerHTML.length > 3 )
+        dots.innerHTML = "";
+    else
+        dots.innerHTML += ".";
+    }, 500);
     </script>
 {% endblock %}
