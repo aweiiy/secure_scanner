@@ -70,48 +70,31 @@
 
 {% block scripts %}
         <script>
-        $(document).ready(function() {
-            $("#change-password-form").validate({
-                rules: {
-                    old_password:{
-                        required: true
+            $(document).ready(function() {
+                $('#change-password-form').validate({
+                    rules: {
+                        new_password: {
+                            required: true,
+                            minlength: 8
+                        },
+                        confirm_new_password: {
+                            required: true,
+                            minlength: 8,
+                            equalTo: "#new_password"
+                        }
                     },
-                    password: {
-                        required: true,
-                        minlength: 8
-                    },
-                    password_confirmation: {
-                        required: true,
-                        equalTo: "#password"
+                    messages: {
+                        new_password: {
+                            required: "Please provide a password",
+                            minlength: "Your password must be at least 8 characters long"
+                        },
+                        confirm_new_password: {
+                            required: "Please provide a password",
+                            minlength: "Your password must be at least 8 characters long",
+                            equalTo: "Passwords do not match"
+                        }
                     }
-                },
-                messages: {
-                    old_password: {
-                        required: "Please enter your old password"
-                    },
-                    password: {
-                        required: "Enter your password"
-                    },
-                    password_confirmation: {
-                        required: "Please confirm your password",
-                        equalTo: "Passwords do not match"
-                    }
-                }
+                });
             });
-            $("#delete-account-form").validate({
-                rules: {
-                    password: {
-                        required: true,
-                        minlength: 8
-                    },
-                },
-                messages: {
-                    password: {
-                        required: "Enter your password to delete account",
-                        minlength: "Password must be at least 8 characters long"
-                    }
-                }
-            });
-        });
     </script>
 {% endblock %}

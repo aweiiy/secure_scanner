@@ -20,7 +20,14 @@ def add(x: int, y: int) -> int:
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
     time.sleep(5)
+    counter = 0
     while True:
+        counter += 1
+        if counter == 2:
+            URL = f'http://web:5001/check/{report_id}'
+            r = requests.get(url=URL)
+            counter = 0
+
         URL = f'http://web:5001/api/count_files/{report_id}'
         r = requests.get(url = URL)
         data = r.json()

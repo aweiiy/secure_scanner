@@ -29,8 +29,9 @@ def home():
 @login_required
 def reports():
     page = request.args.get(get_page_parameter(), type=int, default=1)
-    pagination = Pagination(page=page, total=Report.query.count(), search=False, record_name='reports', per_page=10)
-    return render_template("user/reports.html", user=current_user, reports=Report.query.paginate(page=page, per_page=10).items, pagination=pagination)
+    Reports = Report.query.filter_by(user_id=current_user.id).order_by(Report.id.desc())
+    pagination = Pagination(page=page, total=Reports.count(), search=False, record_name='reports', per_page=10)
+    return render_template("user/reports.html", user=current_user, reports=Reports.paginate(page=page, per_page=10).items, pagination=pagination)
 
 @views.route('/api/genereate_report', methods=['POST'])
 @login_required
@@ -109,8 +110,16 @@ def add(param1: int, param2: int) -> str:
 def check_task(task_id: str) -> str:
     res = celery.AsyncResult(task_id)
     if res.state == states.PENDING:
+        report = Report.query.filter_by(task_id=task_id).first()
+        if report:
+            report.status = res.state
+            db.session.commit()
         return res.state
     else:
+        report = Report.query.filter_by(task_id=task_id).first()
+        if report:
+            report.status = res.state
+            db.session.commit()
         return str(res.result)
 
 

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from os import path
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -6,9 +6,12 @@ from werkzeug.security import generate_password_hash
 
 db = SQLAlchemy()
 
+def page_not_found(e):
+  return render_template('404.html'), 404
 
 def create_app():
     app = Flask(__name__)
+    app.register_error_handler(404, page_not_found)
     app.config['SECRET_KEY'] = 'testavimas'
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
     db.init_app(app)

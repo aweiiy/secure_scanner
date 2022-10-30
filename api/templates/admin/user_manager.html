@@ -3,13 +3,10 @@
 {% block title %} Report Manager {% endblock %}
 
 {% block admin_content %}
-<div class="container">
-   <div class="row">
-      <div class="col">
-      </div>
-      <div class="col-12">
-         <div class="card">
-            <div class="card-body">
+<div class="mt-1">
+<h2> User manager</h2>
+            </div>
+
                <div class="table-responsive">
                 {{ pagination.info }}
                 {{ pagination.links }}
@@ -18,41 +15,31 @@
                                 <tr>
                                     <th scope="col">User ID</th>
                                     <th scope="col">User Email</th>
+                                    <th scope="col">User Role</th>
+                                    <th scope="col">Report count</th>
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% if users|length == 0 %}
-                                <tr>
-                                    <td colspan="4" style="text-align: center;">No users found.</td>
-                                </tr>
-                            {% else %}
                                 {% for user in users %}
-                                    <tr>
-                                        <td>{{ user.id }}</td>
-                                        <td>{{ user.email }}</td>
-                                        <td>
-                                            <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-primary">Edit</a>
-                                            <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}">
-                                            <button href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>{{ user.id }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{% if user.role == 1 %} Admin {% else %} User {% endif %}</td>
+                                    <td>{{ user.reports|length }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin.edit_user', user_id=user.id) }}" class="btn btn-primary">Edit</a>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}">
+                                        <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger">Delete</a>
+                                        </form>
+                                    </td>
+                                </tr>
                                 {% endfor %}
-                            {% endif %}
-
                         </table>
                {{ pagination.info }}
                {{ pagination.links }}
             </div>
-         </div>
-      </div>
-      <div class="col">
-      </div>
-   </div>
-</div>
-
-
-
 
 {% endblock %}
