@@ -30,7 +30,7 @@
           <td>{{ report.date }}</td>
           <td>{{ report.status }}</td>
           <td>
-            <button type="button" class="btn btn-primary" onclick="window.location.href='/reports/{{ report.id }}'">View</button> {% if report.status == "Ready" %} <button type="button" class="btn btn-success" onclick="window.location.href='/reports/{{ report.id }}/download'">Download</button> {% else %} <button type="button" class="btn btn-outline-primary check_button" id="{{report.id}}" data-task_id="{{report.task_id}}">Check status</button> {% endif %} <form action="/reports/{{ report.id }}/delete" method="POST" style="display: inline;">
+            <button type="button" class="btn btn-primary" onclick="window.location.href='/reports/{{ report.id }}'">View</button> {% if report.status == "READY" %} <button type="button" class="btn btn-success" onclick="window.location.href='/reports/{{ report.id }}/download'">Download</button> {% else %} <button type="button" class="btn btn-outline-primary check_button" id="{{report.id}}" data-task_id="{{report.task_id}}">Check status</button> {% endif %} <form action="/reports/{{ report.id }}/delete" method="POST" style="display: inline;">
               <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this report?')">Delete</button>
             </form>
           </td>

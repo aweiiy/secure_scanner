@@ -35,15 +35,56 @@ background: linear-gradient(to right, #274046, #E6DADA); /* W3C, IE 10+/ Edge, F
         </div>
         <br>
         <br>
-        <div class="row">
+                <div class="row">
           <div class="col-12">
             <h6>Nmap scan results:</h6>
           </div>
           <div class="col-12">
-            {{ report.scan_data }}
+           <div class="card">
+            <div class="card-body">
+                <pre>{{ report.nmap_report }}</pre>
+            </div>
           </div>
         </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-12">
+            <h6>Nikto scan results:</h6>
+          </div>
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <pre>{{ report.nikto_report }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
       </div>
+        <div class="row">
+          <div class="col-12">
+            <h6>Dirbuster scan results:</h6>
+          </div>
+            <div class="col-12">
+                <div class="card">
+                <div class="card-body">
+                    <pre>{{ report.dirb_report }}</pre>
+                </div>
+                </div>
+      </div>
+    </div>
+<br>
+        <div class="row">
+          <div class="col-12">
+            <h6>Misc scan results:</h6>
+          </div>
+            <div class="col-12">
+                <div class="card">
+                <div class="card-body">
+                    <pre>{{ report.scan_data }}</pre>
+                </div>
+                </div>
     </div>
   </div>
 </div>

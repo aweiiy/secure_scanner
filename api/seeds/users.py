@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash
 from api import db
 
 #RUN flask seed run
+# docker-compose exec web flask seed run
 
 class User(db.Model):
     def __init__(self, email=None, password=None, role=None):

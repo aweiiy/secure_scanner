@@ -14,6 +14,7 @@ from flask_paginate import Pagination, get_page_parameter
 from . import db
 import validators
 import shutil
+import re
 
 
 views = Blueprint('views', __name__)
@@ -32,6 +33,19 @@ def reports():
     Reports = Report.query.filter_by(user_id=current_user.id).order_by(Report.id.desc())
     pagination = Pagination(page=page, total=Reports.count(), search=False, record_name='reports', per_page=10)
     return render_template("user/reports.html", user=current_user, reports=Reports.paginate(page=page, per_page=10).items, pagination=pagination)
+
+@views.route('/reports/<report_id>')
+@login_required
+def show_report(report_id):
+    report = Report.query.get(report_id)
+    if report:
+        if report.user_id == current_user.id:
+            res = celery.AsyncResult(report.task_id)
+            if res.state == states.SUCCESS:
+                return render_template("user/report.html", user=current_user, report=report, task_id=report.task_id)
+            else:
+                flash("Report is not ready yet", category='error')
+                return render_template("generating.html", user=current_user, report=report, task_id=report.task_id)
 
 @views.route('/api/genereate_report', methods=['POST'])
 @login_required
@@ -54,19 +68,6 @@ def generate_report():
         flash("Invalid URL, use http:// or https://", category='error')
         return redirect(url_for('views.home'))
 
-@views.route('/reports/<report_id>')
-@login_required
-def show_report(report_id):
-    report = Report.query.get(report_id)
-    if report:
-        if report.user_id == current_user.id:
-            res = celery.AsyncResult(report.task_id)
-            if res.state == states.SUCCESS:
-                return render_template("user/report.html", user=current_user, report=report, task_id=report.task_id, scan_data=report.scan_data)
-            else:
-                flash("Report is not ready yet", category='error')
-                return render_template("generating.html", user=current_user, report=report, task_id=report.task_id)
-
 
 
 @views.route('/reports/check_status/', methods=['POST'])
@@ -74,6 +75,8 @@ def taskstatus():
     task_id = request.form.get('task_id')
     res = celery.AsyncResult(task_id)
     if res.state == states.SUCCESS:
+        report = Report.query.filter_by(task_id=task_id).first()
+        report.status = "READY"
         return jsonify({'status': 'Ready to download', 'state': res.state})
     else:
         return jsonify({'status': res.state, 'state': res.state})
@@ -89,6 +92,24 @@ def add_report_file(report_id: int):
         if report:
             file = request.files['file']
             file.save(f'reports/{report_id}/{file.filename}')
+            #Writes file content to database
+            if file.filename == 'nmap.txt':
+                with open(f'reports/{report_id}/{file.filename}', 'r', newline='\n') as f:
+                    report.nmap_report = f.read()
+                    db.session.commit()
+            elif file.filename == 'nikto.txt':
+                with open(f'reports/{report_id}/{file.filename}', 'r', newline='\n') as f:
+                    report.nikto_report = f.read()
+                    db.session.commit()
+            elif file.filename == 'dirb.txt':
+                with open(f'reports/{report_id}/{file.filename}', 'r', newline='\n') as f:
+                    report.dirb_report = f.read()
+                    db.session.commit()
+            else:
+                with open(f'reports/{report_id}/{file.filename}', 'r', newline='\n') as f:
+                    report.scan_data = f.read()
+                    db.session.commit()
+
             return Response(status=200)
         else:
             return Response(status=404)
@@ -102,8 +123,9 @@ def check_task(report_id: int):
     if report:
         task_id = report.task_id
         res = celery.AsyncResult(task_id)
-        report.status = res.state
-        db.session.commit()
+        if res.state == states.SUCCESS:
+            report.status = 'READY'
+            db.session.commit()
         return res.state
     else:
         return "Report not found"
@@ -137,7 +159,9 @@ def download_report(report_id: int) -> str:
         if report.user_id == current_user.id:
             res = celery.AsyncResult(report.task_id)
             if res.state == states.SUCCESS:
-                return send_file(f'reports/{report_id}/Generated_Report.pdf', as_attachment=True, download_name=f'{report.name}_report.pdf')
+                name = re.compile(r"https?://(www\.)?")
+                name = name.sub('', report.name).strip().strip('/')
+                return send_file(f'reports/{report_id}/Generated_Report.pdf', as_attachment=True, download_name=f'{name} report.pdf')
             else:
                 flash("Report is not ready yet", category='error')
                 return redirect(url_for('views.reports'))
@@ -152,7 +176,7 @@ def count_files(report_id: int) -> str:
     report = Report.query.filter_by(id=report_id).first()
     if report:
         if len(os.listdir(f'reports/{report.id}')) == 2:
-            report.status = 'Ready'
+            report.status = 'READY'
             db.session.commit()
         return jsonify(len(os.listdir(f'reports/{report.id}')))
     else:
@@ -167,18 +191,31 @@ def merge_reports() -> str:
         report = Report.query.filter_by(id=report_id).first()
         if report:
             files = os.listdir(f'reports/{report.id}')
-            with open(f'reports/{report.id}/merged.txt', 'w') as outfile:
-                for fname in files:
-                    with open(f'reports/{report.id}/{fname}') as infile:
-                        outfile.write(infile.read())
-            with open(f'reports/{report.id}/merged.txt', 'r') as f:
-                report.scan_data = f.read()
+            if len(files) == 2:
+                with open(f'reports/{report.id}/merged.txt', 'w') as outfile:
+                    if 'nmap.txt' in files:
+                        with open(f'reports/{report.id}/nmap.txt') as infile:
+                            outfile.write(infile.read())
+                    if 'nikto.txt' in files:
+                        with open(f'reports/{report.id}/nikto.txt') as infile:
+                            outfile.write(infile.read())
+                    if 'dirb.txt' in files:
+                        with open(f'reports/{report.id}/dirb.txt') as infile:
+                            outfile.write(infile.read())
 
-            db.session.commit()
-            convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/Generated_Report.pdf')
-            return Response(status=200)
+
+                convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/Generated_Report.pdf')
+                report.status = 'READY'
+                db.session.commit()
+                return Response(status=200)
+            else:
+                return Response(status=404)
+
         else:
             return Response(status=404)
+    else:
+        return Response(status=401)
+
 
 def convert_pdf(txt_file, pdf_file):
     with open(txt_file, 'r') as f:
@@ -186,6 +223,5 @@ def convert_pdf(txt_file, pdf_file):
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         for x in f:
-            pdf.cell(200, 10, txt=x, ln=1, align='C')
+            pdf.cell(200, 10, txt=x, ln=1, align='L')
         pdf.output(pdf_file)
-

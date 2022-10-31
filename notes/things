@@ -1,3 +1,5 @@
-migracijos - padaryta admin acc sukurimas (bet nesaugus)
+migracijos - reportu migracijas
+ansible padaryti
+sudo docker run --rm --entrypoint sh instrumentisto/nmap -c "nmap -A -T5 -p 5001 -oX /tmp/1.xml 193.219.91.103 && curl -u admin:admin -F "file=@t1.txt" 127.0.0.1:5001/api/add/2"
 
 
