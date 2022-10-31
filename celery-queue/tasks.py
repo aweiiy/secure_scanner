@@ -12,18 +12,13 @@ CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localho
 celery = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 
 
-@celery.task(name='tasks.add')
-def add(x: int, y: int) -> int:
-    time.sleep(5)
-    return x + y
-
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
     time.sleep(5)
     counter = 0
     while True:
         counter += 1
-        if counter == 2:
+        if counter == 10:
             URL = f'http://web:5001/check/{report_id}'
             r = requests.get(url=URL)
             counter = 0

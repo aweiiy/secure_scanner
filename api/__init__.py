@@ -3,6 +3,8 @@ from os import path
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash
+from flask_seeder import FlaskSeeder
+
 
 db = SQLAlchemy()
 
@@ -15,6 +17,9 @@ def create_app():
     app.config['SECRET_KEY'] = 'testavimas'
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
     db.init_app(app)
+
+    seeder = FlaskSeeder()
+    seeder.init_app(app, db)
 
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'

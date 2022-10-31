@@ -1,6 +1,6 @@
 {% extends 'admin/admin_base.html' %}
 
-{% block title %} Report Manager {% endblock %}
+{% block title %} User Manager {% endblock %}
 
 {% block admin_content %}
 <div class="mt-1">
@@ -32,7 +32,7 @@
                                     </td>
                                     <td>
                                         <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}">
-                                        <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger">Delete</a>
+                                        <button type="submit" href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
                                         </form>
                                     </td>
                                 </tr>

@@ -48,7 +48,7 @@ def register():
                 login_user(new_user, remember=True)
                 return redirect(url_for('views.home'))
             else:
-                flash("Email already exists", category='error')
+                flash(f"This email is already registered, try to login with {email}", category='error')
 
         return render_template("user/register.html", data=email)
     else:

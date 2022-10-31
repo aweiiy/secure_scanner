@@ -55,7 +55,12 @@
           password: {
             required: "Password is required",
             minlength: "Password must be at least 8 characters"
-          }
+          },
+            confirm_password: {
+                required: "Confirm password is required",
+                minlength: "Confirm password must be at least 8 characters",
+                equalTo: "Passwords do not match"
+            }
         }
       });
     });

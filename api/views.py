@@ -44,6 +44,7 @@ def generate_report():
         db.session.commit()
         task = celery.send_task('tasks.generate_report', args=[website_name, report.id])
         report.task_id = task.id
+        report.status = task.state
         db.session.commit()
         os.mkdir(f'reports/{report.id}')
         flash("Scan started, check back later for generated report.", category='success')
@@ -95,32 +96,19 @@ def add_report_file(report_id: int):
         return Response(status=401)
 
 
-
-
-
-
-@views.route('/add/<int:param1>/<int:param2>')
-def add(param1: int, param2: int) -> str:
-    task = celery.send_task('tasks.add', args=[param1, param2], kwargs={})
-    response = f"<a href='{url_for('views.check_task', task_id=task.id)}'>check status of {task.id} </a>"
-    return response
-
-
-@views.route('/check/<string:task_id>')
-def check_task(task_id: str) -> str:
-    res = celery.AsyncResult(task_id)
-    if res.state == states.PENDING:
-        report = Report.query.filter_by(task_id=task_id).first()
-        if report:
-            report.status = res.state
-            db.session.commit()
+@views.route('/check/<int:report_id>')
+def check_task(report_id: int):
+    report = Report.query.get(report_id)
+    if report:
+        task_id = report.task_id
+        res = celery.AsyncResult(task_id)
+        report.status = res.state
+        db.session.commit()
         return res.state
     else:
-        report = Report.query.filter_by(task_id=task_id).first()
-        if report:
-            report.status = res.state
-            db.session.commit()
-        return str(res.result)
+        return "Report not found"
+
+
 
 
 @views.route('/reports/<int:report_id>/delete', methods=['POST'])

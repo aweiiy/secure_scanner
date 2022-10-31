@@ -10,8 +10,7 @@
       <div class="col-12">
          <div class="card">
             <div class="card-body">
-               <form method="post" action="/api/genereate_report">
-
+               <form method="post" action="/api/genereate_report" id="report_form">
                   <div class="mb-3">
                      <p class="text-center">Welcome to the secure auditing tool. To get started, enter your desired website below.</p>
                      <input type="text" class="form-control" id="website" name="website" aria-describedby="websiteScan" placeholder="https://example.com">
@@ -29,7 +28,25 @@
    </div>
 </div>
 
+{% endblock %}
 
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+      $("#report_form").validate({
+        rules: {
+          website: {
+            required: true,
+            url: true
+          }
+        },
+        messages: {
+          website: {
+            required: "Please enter a website",
+            url: "Please enter a valid URL, including the protocol (http:// or https://)"
+          }
+        }});
+      });
 
-
+</script>
 {% endblock %}
