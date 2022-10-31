@@ -7,6 +7,7 @@ from flask import url_for, jsonify
 from fpdf import FPDF
 from werkzeug.security import generate_password_hash
 
+from .PDF import PDF
 from .models import Report, User
 from .worker import celery
 from flask_login import login_required, current_user
@@ -52,7 +53,7 @@ def show_report(report_id):
 def generate_report():
     data = request.form
     website_name = data.get('website')
-    if validators.url(website_name):
+    if validators.url(website_name): # TODO: nuimti visko po domaino ir palikti tik (.com ... )
         report = Report(name=website_name, task_id='' , user_id=current_user.id)
         db.session.add(report)
         db.session.commit()
@@ -204,7 +205,8 @@ def merge_reports() -> str:
                             outfile.write(infile.read())
 
 
-                convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/Generated_Report.pdf')
+                #convert_pdf(f'reports/{report.id}/merged.txt', f'reports/{report.id}/Generated_Report.pdf')
+                create_pdf(report.id)
                 report.status = 'READY'
                 db.session.commit()
                 return Response(status=200)
@@ -222,6 +224,46 @@ def convert_pdf(txt_file, pdf_file):
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
+
         for x in f:
             pdf.cell(200, 10, txt=x, ln=1, align='L')
+
+
         pdf.output(pdf_file)
+
+def create_pdf(report_id: int):
+    # create a PDF object
+    pdf = PDF('P', 'mm', 'Letter')
+
+    report = Report.query.filter_by(id=report_id).first()
+
+    title = f'Report for {report.name}'
+    # add a page
+    # metadara
+    pdf.set_title(title)
+    pdf.set_author('0r')
+
+    # Create Links
+    website = ''
+    ch1_link = pdf.add_link()
+    ch2_link = pdf.add_link()
+
+    # Set auto page break
+    pdf.set_auto_page_break(auto=True, margin=15)
+
+    # Add Page
+    pdf.add_page()
+    pdf.image('./static/images/bg.jpg', x=-0.5, w=pdf.w + 1)
+
+    # Attach Links
+    pdf.cell(0, 10, 'Source', ln=1, link=website)
+    pdf.cell(0, 10, 'NMAP SCAN', ln=1, link=ch1_link)
+    pdf.cell(0, 10, 'NIKTO SCAN', ln=1, link=ch2_link)
+
+    # get total page numbers
+    pdf.alias_nb_pages(alias='nb')
+
+    pdf.print_chapter(1, 'NMAP SCAN', f'reports/{report_id}/nmap.txt', ch1_link)
+    pdf.print_chapter(2, 'NIKTO SCAN', f'reports/{report_id}/nikto.txt', ch2_link)
+
+    pdf.output(f'reports/{report_id}/Generated_Report.pdf', 'F')
