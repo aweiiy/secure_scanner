@@ -52,8 +52,9 @@ def show_report(report_id):
 @login_required
 def generate_report():
     data = request.form
-    website_name = data.get('website')
-    if validators.url(website_name): # TODO: nuimti visko po domaino ir palikti tik (.com ... )
+    patern = re.compile(r'[a-zA-Z]+://([A-Za-z0-9]+(\.[A-Za-z0-9]+)+)', re.IGNORECASE)
+    website_name = patern.match(data.get('website')).group(0)
+    if validators.url(website_name):
         report = Report(name=website_name, task_id='' , user_id=current_user.id)
         db.session.add(report)
         db.session.commit()
@@ -66,7 +67,7 @@ def generate_report():
         return redirect(url_for('views.reports'))
         #return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
     else:
-        flash("Invalid URL, use http:// or https://", category='error')
+        flash(f"Invalid URL ({website_name}), use http:// or https://", category='error')
         return redirect(url_for('views.home'))
 
 
@@ -233,37 +234,40 @@ def convert_pdf(txt_file, pdf_file):
 
 def create_pdf(report_id: int):
     # create a PDF object
-    pdf = PDF('P', 'mm', 'Letter')
+    pdf = PDF('P', 'mm', 'A4')
 
     report = Report.query.filter_by(id=report_id).first()
 
-    title = f'Report for {report.name}'
+    title = f'Report for {report.name} by 0r'
+    pdf.set_title(title)
     # add a page
     # metadara
     pdf.set_title(title)
     pdf.set_author('0r')
 
     # Create Links
-    website = ''
-    ch1_link = pdf.add_link()
-    ch2_link = pdf.add_link()
+    scan1_link = pdf.add_link()
+    scan2_link = pdf.add_link()
+    scan3_link = pdf.add_link()
 
     # Set auto page break
     pdf.set_auto_page_break(auto=True, margin=15)
 
     # Add Page
     pdf.add_page()
-    pdf.image('./static/images/bg.jpg', x=-0.5, w=pdf.w + 1)
-
+    pdf.image('./static/images/banner.jpg', x=-0.5, w=pdf.w + 1)
+    pdf.ln(10)
     # Attach Links
-    pdf.cell(0, 10, 'Source', ln=1, link=website)
-    pdf.cell(0, 10, 'NMAP SCAN', ln=1, link=ch1_link)
-    pdf.cell(0, 10, 'NIKTO SCAN', ln=1, link=ch2_link)
+    pdf.cell(0, 10, 'Summary', ln=1, align='C')
+    pdf.ln(10)
+    pdf.cell(0, 10, 'Scan 1: NMAP SCAN', ln=1, link=scan1_link)
+    pdf.cell(0, 10, 'Scan 2: NIKTO SCAN', ln=1, link=scan2_link)
+    pdf.cell(0, 10, 'Scan 3: DIRB SCAN', ln=1, link=scan3_link)
 
     # get total page numbers
     pdf.alias_nb_pages(alias='nb')
 
-    pdf.print_chapter(1, 'NMAP SCAN', f'reports/{report_id}/nmap.txt', ch1_link)
-    pdf.print_chapter(2, 'NIKTO SCAN', f'reports/{report_id}/nikto.txt', ch2_link)
+    pdf.print_scan(1, 'NMAP SCAN', f'reports/{report_id}/nmap.txt', link=scan1_link)
+    pdf.print_scan(2, 'NIKTO SCAN', f'reports/{report_id}/nikto.txt', link=scan2_link)
 
     pdf.output(f'reports/{report_id}/Generated_Report.pdf', 'F')
