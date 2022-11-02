@@ -1,0 +1,51 @@
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          16x.2xx.2xx.1xx
++ Target Hostname:    nikto-test.com
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject:  /CN=nikto-test.com
+                   Altnames: nikto-test.com
+                   Ciphers:  ECDHE-RSA-AES128-GCM-SHA256
+                   Issuer:   /C=US/O=Let's Encrypt/CN=Let's Encrypt Authority X3
++ Start Time:         2018-06-26 12:03:53 (GMT10)
+---------------------------------------------------------------------------
++ Server: nginx/1.4.6 (Ubuntu)
++ Retrieved x-powered-by header: PHP/5.5.9-1ubuntu4.22
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'link' found, with multiple values: (; rel="https://api.w.org/",; rel=shortlink,)
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Entry '/wp-admin/' in robots.txt returned a non-forbidden or redirect HTTP code (302)
++ "robots.txt" contains 2 entries which should be manually viewed.
++ The Content-Encoding header is set to "deflate" this may mean that the server is vulnerable to the BREACH attack.
++ 5567 items checked: 0 error(s) and 10 item(s) reported on remote host
++ End Time:           2018-06-25 11:14:46 (GMT0) (8129 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          16x.2xx.2xx.1xx
++ Target Hostname:    nikto-test.com
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject:  /CN=nikto-test.com
+                   Altnames: nikto-test.com
+                   Ciphers:  ECDHE-RSA-AES128-GCM-SHA256
+                   Issuer:   /C=US/O=Let's Encrypt/CN=Let's Encrypt Authority X3
++ Start Time:         2018-06-26 12:03:53 (GMT10)
+---------------------------------------------------------------------------
++ Server: nginx/1.4.6 (Ubuntu)
++ Retrieved x-powered-by header: PHP/5.5.9-1ubuntu4.22
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'link' found, with multiple values: (; rel="https://api.w.org/",; rel=shortlink,)
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Entry '/wp-admin/' in robots.txt returned a non-forbidden or redirect HTTP code (302)
++ "robots.txt" contains 2 entries which should be manually viewed.
++ The Content-Encoding header is set to "deflate" this may mean that the server is vulnerable to the BREACH attack.
++ 5567 items checked: 0 error(s) and 10 item(s) reported on remote host
++ End Time:           2018-06-25 11:14:46 (GMT0) (8129 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested

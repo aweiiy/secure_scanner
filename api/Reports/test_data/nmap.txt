@@ -1,0 +1,14 @@
+Starting Nmap 7.80 ( https://nmap.org ) at 2020-05-07 21:16 IST
+Nmap scan report for router (192.168.2.254)
+Host is up, received arp-response (0.00026s latency).
+Not shown: 995 filtered ports
+Reason: 995 no-responses
+PORT    STATE SERVICE REASON
+22/tcp  open  ssh     syn-ack ttl 64
+53/tcp  open  domain  syn-ack ttl 64
+80/tcp  open  http    syn-ack ttl 64
+443/tcp open  https   syn-ack ttl 64
+666/tcp open  doom    syn-ack ttl 64
+MAC Address: 00:08:A2:0D:05:41 (ADI Engineering)
+
+Nmap done: 1 IP address (1 host up) scanned in 4.85 seconds

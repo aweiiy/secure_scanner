@@ -5,13 +5,14 @@ class PDF(FPDF):
 
     title = None
 
-    def set_title(self, title):
+    def set_title_name(self, title):
         self.title = title
 
     def get_title(self):
         return self.title
 
     def header(self):
+        # TODO remove header from first page
         # font
         self.set_font('helvetica', 'B', 15)
         # Calculate width of title and position
@@ -32,12 +33,13 @@ class PDF(FPDF):
 
     # page footer
     def footer(self):
-        # Set position of the footer
-        self.set_y(-15)
-        # set font
-        self.set_font('helvetica', 'I', 10)
-        # page number
-        self.cell(0, 10, f'Page {self.page_no()}/nb', align = 'C')
+        if not self.page_no() == 1 :
+            # Set position of the footer
+            self.set_y(-15)
+            # set font
+            self.set_font('helvetica', 'I', 10)
+            # page number
+            self.cell(0, 10, f'Page {self.page_no()}/nb', align = 'C')
 
     # Adding scan title to start of each scan
     def scan_title(self, scan_num, scan_title, link):

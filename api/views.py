@@ -62,7 +62,14 @@ def generate_report():
         report.task_id = task.id
         report.status = task.state
         db.session.commit()
-        os.mkdir(f'reports/{report.id}')
+        if not os.path.exists(f'reports/{report.id}'):
+            os.makedirs(f'reports/{report.id}')
+        else:
+            shutil.rmtree(f'reports/{report.id}')
+            os.makedirs(f'reports/{report.id}')
+        #copy test data to report folder #TODO remove this when project is done
+        shutil.copyfile('reports/test_data/nmap.txt', f'reports/{report.id}/nmap.txt')
+        shutil.copyfile('reports/test_data/nikto.txt', f'reports/{report.id}/nikto.txt')
         flash("Scan started, check back later for generated report.", category='success')
         return redirect(url_for('views.reports'))
         #return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
@@ -145,7 +152,8 @@ def delete_report(report_id: int) -> str:
             flash(f"Report for {report.name} has been deleted successfully.", category='success')
             db.session.delete(report)
             db.session.commit()
-            shutil.rmtree(f'reports/{report_id}')
+            if os.path.exists(f'reports/{report_id}'):
+                shutil.rmtree(f'reports/{report_id}')
             return redirect(url_for('views.reports'))
         else:
             return "You do not have permission to delete this report"
@@ -239,7 +247,7 @@ def create_pdf(report_id: int):
     report = Report.query.filter_by(id=report_id).first()
 
     title = f'Report for {report.name} by 0r'
-    pdf.set_title(title)
+    pdf.set_title_name(title)
     # add a page
     # metadara
     pdf.set_title(title)
@@ -255,10 +263,16 @@ def create_pdf(report_id: int):
 
     # Add Page
     pdf.add_page()
-    pdf.image('./static/images/banner.jpg', x=-0.5, w=pdf.w + 1)
+    pdf.image('./static/images/banner_2.png', 0, 0, 210, 297, 'PNG')
+    #add text in middle vertically and horizontally of the page
+    pdf.set_text_color(255, 255, 255)
+    pdf.cell(0, 100, 'Report for ' + report.name, 0, 1, 'C')
+    pdf.cell(0, 10, 'by 0r', 0, 1, 'C')
+    pdf.set_text_color(0, 0, 0)
+    pdf.add_page()
     pdf.ln(10)
     # Attach Links
-    pdf.cell(0, 10, 'Summary', ln=1, align='C')
+    pdf.cell(0, -1, 'Summary', ln=1, align='C')
     pdf.ln(10)
     pdf.cell(0, 10, 'Scan 1: NMAP SCAN', ln=1, link=scan1_link)
     pdf.cell(0, 10, 'Scan 2: NIKTO SCAN', ln=1, link=scan2_link)
