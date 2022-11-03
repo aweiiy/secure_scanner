@@ -41,8 +41,7 @@ def show_report(report_id):
     report = Report.query.get(report_id)
     if report:
         if report.user_id == current_user.id:
-            res = celery.AsyncResult(report.task_id)
-            if res.state == states.SUCCESS:
+            if report.status == 'READY':
                 return render_template("user/report.html", user=current_user, report=report, task_id=report.task_id)
             else:
                 flash("Report is not ready yet", category='error')
@@ -67,7 +66,7 @@ def generate_report():
         else:
             shutil.rmtree(f'reports/{report.id}')
             os.makedirs(f'reports/{report.id}')
-        #copy test data to report folder #TODO remove this when project is done
+        #copy test data to report folder
         shutil.copyfile('reports/test_data/nmap.txt', f'reports/{report.id}/nmap.txt')
         shutil.copyfile('reports/test_data/nikto.txt', f'reports/{report.id}/nikto.txt')
         flash("Scan started, check back later for generated report.", category='success')
@@ -263,11 +262,10 @@ def create_pdf(report_id: int):
 
     # Add Page
     pdf.add_page()
-    pdf.image('./static/images/banner_2.png', 0, 0, 210, 297, 'PNG')
+    pdf.image('./reports/images/banner.png', 0, 0, 210, 297, 'PNG')
     #add text in middle vertically and horizontally of the page
     pdf.set_text_color(255, 255, 255)
-    pdf.cell(0, 100, 'Report for ' + report.name, 0, 1, 'C')
-    pdf.cell(0, 10, 'by 0r', 0, 1, 'C')
+    pdf.cell(0, 150, 'Generated report for ' + report.name, 0, 0, 'C')
     pdf.set_text_color(0, 0, 0)
     pdf.add_page()
     pdf.ln(10)

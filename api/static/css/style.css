@@ -2,3 +2,15 @@ label.error {
     color: #dc3545;
     font-size: 14px;
 }
+
+body {
+    margin-bottom: 70px;
+}
+
+#footer {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 50px;
+}

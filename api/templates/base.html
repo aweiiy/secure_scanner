@@ -65,8 +65,8 @@
         </div>
       </div>
     </section> {% block javascript %} <script src="{{ url_for('static',filename='js/script.js') }}"></script> {% endblock %} {% block scripts %} {% endblock %}
-  </body> <!-- todo: fix footer (it hides divs) -->
-  <footer class="footer bg-dark text-center text-white" style="position: fixed ;right: 0; bottom: 0; left: 0">
+  </body>
+  <footer class="footer bg-dark text-center text-white" id="footer">
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);"> Copyright © 2022 </div>
   </footer>
 </html>

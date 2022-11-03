@@ -12,9 +12,8 @@ class PDF(FPDF):
         return self.title
 
     def header(self):
-        # TODO remove header from first page
         # font
-        self.set_font('helvetica', 'B', 15)
+        self.set_font('Arial', 'B', 15)
         # Calculate width of title and position
         title_w = self.get_string_width(self.get_title()) + 6
         doc_w = self.w
@@ -27,19 +26,26 @@ class PDF(FPDF):
         # Thickness of frame (border)
         self.set_line_width(0.5)
         # Title
-        self.cell(title_w, 10, self.get_title(), border=1, ln=1, align='C', fill=1)
+        #self.cell(title_w, 10, self.get_title(), border=1, ln=1, align='C', fill=1)
         # line break
         self.ln(10)
 
     # page footer
     def footer(self):
         if not self.page_no() == 1 :
+            self.image('reports/images/background.png', 0, 0, 210, 297)
             # Set position of the footer
             self.set_y(-15)
+            #self.image('reports/images/footer.png', 0, 280, 210, 30)
             # set font
             self.set_font('helvetica', 'I', 10)
             # page number
+            self.cell(0, 10, f'{self.get_title()}', align='L')
+            self.set_text_color(255, 255, 255)
             self.cell(0, 10, f'Page {self.page_no()}/nb', align = 'C')
+            self.set_text_color(0, 0, 0)
+            #add image to footer
+
 
     # Adding scan title to start of each scan
     def scan_title(self, scan_num, scan_title, link):
@@ -47,15 +53,15 @@ class PDF(FPDF):
         self.set_link(link)
         # set font
         self.set_font('helvetica', '', 12)
-        # set font color
-        self.set_text_color(255, 255, 255)
         # background color
-        self.set_fill_color(110, 0, 150)
+        self.set_draw_color(43, 35, 76)
+        self.set_fill_color(255, 255, 255)
+        self.set_text_color(0, 0, 0)
+        # Thickness of frame (border)
+        self.set_line_width(0.5)
         # scan title
         scan_title = f'Scan {scan_num} : {scan_title}'
-        self.cell(0, 5, scan_title, ln=1, fill=1)
-        # change font color back to black
-        self.set_text_color(0, 0, 0)
+        self.cell(0, 5, scan_title, ln=1, fill=1, border=1)
         # line break
         self.ln()
 
