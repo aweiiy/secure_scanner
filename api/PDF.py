@@ -71,7 +71,7 @@ class PDF(FPDF):
         with open(name, 'rb') as fh:
             txt = fh.read().decode('latin-1')
         # set font
-        self.set_font('times', '', 12)
+        self.set_font('Arial', '', 12)
         # insert text
         self.multi_cell(0, 5, txt)
         # line break
