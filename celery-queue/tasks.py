@@ -14,7 +14,7 @@ celery = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND
 
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
-    time.sleep(5)
+    #time.sleep(5) 
     counter = 0
     while True:
         counter += 1

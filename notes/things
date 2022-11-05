@@ -3,3 +3,6 @@ ansible padaryti
 sudo docker run --rm --entrypoint sh instrumentisto/nmap -c "nmap -A -T5 -p 5001 -oX /tmp/1.xml 193.219.91.103 && curl -u admin:admin -F "file=@t1.txt" 127.0.0.1:5001/api/add/2"
 
 
+
+paleidus shell scripta atsiunciami updates, reikalavimai, dockeris, ansible, opennebula, tada paleidziamas scannerio containeris ir paleidziamas ansible scriptas, kuris pakuria 3 serverius ir gauna ju ip adresus, tada scannerio containeriai zinos ip ir gales siusti komandas ir paleisti docker konteinerius
+https://docs.opennebula.io/6.4/installation_and_configuration/frontend_installation/install.html

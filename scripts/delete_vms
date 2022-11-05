@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+SRV_1 = $1
+SRV_2 = $2
+SRV_3 = $3
+
+CENDPOINT=https://grid5.mif.vu.lt/cloud3/RPC2
+CUSER=$(cat ../.env | grep CLOUD_USER | cut -d "=" -f2)
+CPASS=$(cat ../.env | grep CLOUD_PASS | cut -d "=" -f2)
+
+# Delete VMs if they exist in vms.txt
+for i in `cat ../vms.txt`
+  if i == $SRV_1
+    onevm delete $i --user $CUSER --password $CPASS --endpoint $CENDPOINT
+  elif i == $SRV_2
+    onevm delete $i --user $CUSER --password $CPASS --endpoint $CENDPOINT
+  elif i == $SRV_3
+    onevm delete $i --user $CUSER --password $CPASS --endpoint $CENDPOINT
+  fi
+done
+

@@ -7,29 +7,15 @@ RUN yum -y install epel-release && yum -y install ansible
 RUN mkdir /root/.ssh
 RUN chmod 700 /root/.ssh && chown root:root /root/.ssh
 WORKDIR /root/.ssh
-ADD keys/id_rsa .
+ADD id_rsa .
 RUN chmod 600 id_rsa && chown root:root id_rsa
-ADD keys/id_rsa.pub .
+ADD id_rsa.pub .
 RUN chmod 644 id_rsa.pub && chown root:root id_rsa.pub
 RUN cp id_rsa.pub authorized_keys
 RUN chmod 600 authorized_keys && chown root:root authorized_keys
+WORKDIR /
 EXPOSE 22
 
 
 CMD ["/usr/lib/systemd/systemd"]
 
-
-FROM python:3.9-alpine
-
-ENV CELERY_BROKER_URL redis://redis:6379/0
-ENV CELERY_RESULT_BACKEND redis://redis:6379/0
-ENV C_FORCE_ROOT true
-
-COPY . /queue
-WORKDIR /queue
-
-RUN pip install -U setuptools pip
-RUN pip install -r requirements.txt
-
-# hot code reloading
-CMD watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --concurrency=1 --loglevel=INFO -E
