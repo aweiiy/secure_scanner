@@ -1,0 +1,17 @@
+# ansible playbook to configure server
+---
+- hosts: webserver
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: Install docker
+      apt:
+        update_cache: yes
+        name: docker.io
+        state: present
+    - name: Install docker-compose
+      apt:
+        update_cache: yes
+        name: docker-compose
+        state: present

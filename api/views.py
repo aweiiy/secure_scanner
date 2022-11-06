@@ -67,7 +67,7 @@ def generate_report():
             shutil.rmtree(f'reports/{report.id}')
             os.makedirs(f'reports/{report.id}')
         #copy test data to report folder
-        shutil.copyfile('reports/test_data/nmap.txt', f'reports/{report.id}/nmap.txt')
+        #shutil.copyfile('reports/test_data/nmap.txt', f'reports/{report.id}/nmap.txt')
         shutil.copyfile('reports/test_data/nikto.txt', f'reports/{report.id}/nikto.txt')
         flash("Scan started, check back later for generated report.", category='success')
         return redirect(url_for('views.reports'))

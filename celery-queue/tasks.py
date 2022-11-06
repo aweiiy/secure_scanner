@@ -14,7 +14,8 @@ celery = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND
 
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
-    #time.sleep(5) 
+    #time.sleep(5)
+    ansible_playbook(website_name, report_id)
     counter = 0
     while True:
         counter += 1
@@ -39,9 +40,8 @@ def generate_report(website_name: str, report_id: int) -> str:
 
 
 def ansible_playbook(website_name: str, report_id: int) -> str:
-    subprocess.run([f'docker run --rm --entrypoint sh instrumentisto/nmap -c "nmap -A -T5 -p 5001 -oX /tmp/1.xml 127.0.0.1 && curl -F "file=@/tmp/1.xml" http://127.0.0.1:5001/api/add/{report_id}"'])
-    #subprocess.run(['ansible', 'srv_2', '-m', 'shell', '-a', f'sudo docker run --rm -it frapsoft/nikto -host {website_name} -output /tmp/{report_id}.txt > /tmp/{report_id}.txt | curl -F "file=@/tmp/{report_id}.txt" http://127.0.0.1:5001/api/add/{report_id}'])
-    #subprocess.run(['ansible', 'srv_1', '-m', 'shell', '-a', f'sudo docker run --rm -it wpscanteam/wpscan --url {website_name} --format txt --output /tmp/{report_id}.txt > /tmp/{report_id}.txt | curl -F "file=@/tmp/{report_id}.txt" http://127.0.0.1:5001/api/add/{report_id}'])
+    subprocess.run([f'ansible webserver -m shell -b -K -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 {website_name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" http://web:5001/api/add/{report_id}"'], shell=True)
+
     return f"Ansible playbook executed"
 
 #docker run --rm -it instrumentisto/nmap -A -T4 172.18.0.4

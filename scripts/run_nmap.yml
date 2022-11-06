@@ -1,0 +1,11 @@
+# ansible playbook to run nmap container
+# ansible webserver -m shell -b -e ansible_sudo_pass= -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 10.0.0.86 > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" 10.0.0.86:5001/api/add/3"
+---
+- hosts: webserver
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: run docker
+      shell: sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 10.0.0.86 > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" 10.0.0.86:5001/api/add/1
+

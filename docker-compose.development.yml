@@ -16,7 +16,7 @@ services:
   worker:
     build:
       context: ./celery-queue
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     command: celery -A tasks worker -l info -E
     environment:
       CELERY_BROKER_URL: redis://redis

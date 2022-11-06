@@ -43,7 +43,7 @@ sshpass -p $SRV_PASS ssh-copy-id -o StrictHostKeyChecking=no -i /home/$CUSER/.ss
 
 
 echo "[webserver]" > inventory
-echo "$CUSER@$CSSH_PRIP ansible_port=22 ansible_ssh_private_key_file=/home/$CUSER/.ssh/id_rsa" >> inventory
+echo "$CUSER@$CSSH_PRIP ansible_port=22 ansible_ssh_private_key_file=/home/$CUSER/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> inventory
 
 sudo cp inventory /home/edsa6402/ansible/inventory
 
