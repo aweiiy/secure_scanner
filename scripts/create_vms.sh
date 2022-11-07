@@ -30,18 +30,23 @@ do
 
     echo "IP: $CSSH_PRIP"
     echo $CVMID >> $BASE_DIR/../vms.txt
-    SRV_$i=$CSSH_PRIP
+    if [ $i -eq 1 ]
+    then
+        SRV_1=$CSSH_PRIP
+    else
+        SRV_2=$CSSH_PRIP
+    fi
 
     ssh-keygen -f "/home/$CUSER/.ssh/known_hosts" -R $CSSH_PRIP
     ssh-keygen -f "/root/.ssh/known_hosts" -R $CSSH_PRIP
     if [ -f "/home/$CUSER/.ssh/id_rsa.pub" ]; then
-        cp /home/$CUSER/.ssh/id_rsa.pub $BASE_DIR/../celery-queue/anisble/keys/id_rsa.pub
-        cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/../celery-queue/anisble/keys/id_rsa
+        cp /home/$CUSER/.ssh/id_rsa.pub $BASE_DIR/../celery-queue/ansible/keys/id_rsa.pub
+        cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/../celery-queue/ansible/keys/id_rsa
         echo "Key exists."
     else
         ssh-keygen -t rsa -f "/home/$CUSER/.ssh/id_rsa" -q -N ""
-        cp /home/$CUSER/.ssh/id_rsa.pub $BASE_DIR/../celery-queue/anisble/keys/id_rsa.pub
-        cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/../celery-queue/anisble/keys/id_rsa
+        cp /home/$CUSER/.ssh/id_rsa.pub $BASE_DIR/../celery-queue/ansible/keys/id_rsa.pub
+        cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/../celery-queue/ansible/keys/id_rsa
         echo "Key created."
     fi
 
