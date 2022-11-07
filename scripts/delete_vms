@@ -20,3 +20,7 @@ for i in `cat ../vms.txt`
   fi
 done
 
+# delete lines from enm
+sed -i '/$SRV1_IP/d' ../.env
+sed -i '/$SRV2_IP/d' ../.env
+sed -i '/$SRV3_IP/d' ../.env

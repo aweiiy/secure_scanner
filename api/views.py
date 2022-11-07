@@ -52,7 +52,7 @@ def show_report(report_id):
 def generate_report():
     data = request.form
     patern = re.compile(r'[a-zA-Z]+://([A-Za-z0-9]+(\.[A-Za-z0-9]+)+)', re.IGNORECASE)
-    website_name = patern.match(data.get('website')).group(0)
+    website_name = patern.match(data.get('website').lower()).group(0)
     if validators.url(website_name):
         report = Report(name=website_name, task_id='' , user_id=current_user.id)
         db.session.add(report)
@@ -165,7 +165,7 @@ def delete_report(report_id: int) -> str:
 def download_report(report_id: int) -> str:
     report = Report.query.filter_by(id=report_id).first()
     if report:
-        if report.user_id == current_user.id:
+        if report.user_id == current_user.id or current_user.id == 1:
             res = celery.AsyncResult(report.task_id)
             if res.state == states.SUCCESS:
                 name = re.compile(r"https?://(www\.)?")

@@ -17,7 +17,7 @@ SRV_2=''
 for i in {1..2}
 do
     echo "Creating VM $i"
-    CVMREZ=$(onetemplate instantiate $TID --name testas --cpu $CPU  --vcpu $VCPU --memory $RAM --disk debian11:size=3000:IMAGE_UNAME=oneadmin --user $CUSER --password $CPASS --endpoint $CENDPOINT)
+    CVMREZ=$(onetemplate instantiate $TID --name SRV_$i --cpu $CPU  --vcpu $VCPU --memory $RAM --disk debian11:size=3000:IMAGE_UNAME=oneadmin --user $CUSER --password $CPASS --endpoint $CENDPOINT)
     CVMID=$(echo $CVMREZ |cut -d ' ' -f 3)
     echo $CVMID
 
@@ -57,6 +57,7 @@ done
 echo "" >> $BASE_DIR/../.env
 echo "SRV1_IP=$SRV_1" >> $BASE_DIR/../.env
 echo "SRV2_IP=$SRV_2" >> $BASE_DIR/../.env
+echo "HOST_URL=$CSSH_PRIP" >> $BASE_DIR/../.env
 
 
 echo "[servers]" > hosts
@@ -66,3 +67,4 @@ echo "[server2]" >> hosts
 echo "$CUSER@$SRV_2 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
 
 sudo cp hosts $BASE_DIR/../celery-queue/ansible/inventory
+

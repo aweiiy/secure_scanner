@@ -14,3 +14,21 @@ body {
     left: 0;
     height: 50px;
 }
+
+  @media (min-width: 768px) {
+    .collapse.dont-collapse-sm {
+      display: block;
+      height: auto !important;
+      visibility: visible;
+    }
+  }
+  @media (min-width: 768px) {
+    .menu {
+      margin-bottom: 30px
+    }
+  }
+  @media (min-width: 576px) {
+    .menu {
+      margin-bottom: 30px
+    }
+  }
