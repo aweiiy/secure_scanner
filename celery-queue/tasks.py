@@ -43,7 +43,9 @@ def generate_report(website_name: str, report_id: int) -> str:
 def ansible_playbook(website_name: str, report_id: int) -> str:
     name = re.compile(r"https?://(www\.)?")
     name = name.sub('', website_name).strip().strip('/')
-    subprocess.run([f'ansible servers -m shell -b -e ansible_sudo_pass= -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 {name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" http://web:5001/api/add/{report_id}"'], shell=True)
+    subprocess.run([f'ansible server1 -m shell -b -e ansible_sudo_pass= -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 {name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" http://web:5001/api/add/{report_id}"'], shell=True)
+    subprocess.run([f'ansible server2 -m shell -b -e ansible_sudo_pass= -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it frapsoft/nikto -host {name} > /tmp/nikto.txt ; curl -u admin:admin -F "file=@/tmp/nikto.txt" http://web:5001/api/add/{report_id}"'], shell=True)
+
 
     return f"Ansible playbook executed"
 

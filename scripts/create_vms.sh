@@ -54,12 +54,15 @@ do
 done
 
 
+echo "" >> $BASE_DIR/../.env
 echo "SRV1_IP=$SRV_1" >> $BASE_DIR/../.env
 echo "SRV2_IP=$SRV_2" >> $BASE_DIR/../.env
 
 
 echo "[servers]" > hosts
+echo "[server1]" >> hosts
 echo "$CUSER@$SRV_1 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
+echo "[server2]" >> hosts
 echo "$CUSER@$SRV_2 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
 
 sudo cp hosts $BASE_DIR/../celery-queue/ansible/inventory
