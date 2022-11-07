@@ -1,6 +1,7 @@
 FROM ubuntu
 
 ENV DEBIAN_FRONTEND=noninteractive
+#ENV HOST 0.0.0.0
 
 RUN apt-get update && \
     apt-get install -y gcc python2-dev libkrb5-dev && \

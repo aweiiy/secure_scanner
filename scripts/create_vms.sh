@@ -17,7 +17,7 @@ SRV_2=''
 for i in {1..2}
 do
     echo "Creating VM $i"
-    CVMREZ=$(onetemplate instantiate $TID --name testas --cpu $CPU  --vcpu $VCPU --memory $RAM --user $CUSER --password $CPASS --endpoint $CENDPOINT)
+    CVMREZ=$(onetemplate instantiate $TID --name testas --cpu $CPU  --vcpu $VCPU --memory $RAM --disk debian11:size=3000:IMAGE_UNAME=oneadmin --user $CUSER --password $CPASS --endpoint $CENDPOINT)
     CVMID=$(echo $CVMREZ |cut -d ' ' -f 3)
     echo $CVMID
 
