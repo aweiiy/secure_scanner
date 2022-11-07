@@ -112,3 +112,5 @@ tmp
 coverage-reports
 coverage*
 .DS_Store
+!/.env
+

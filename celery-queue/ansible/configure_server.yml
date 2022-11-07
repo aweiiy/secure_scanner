@@ -1,6 +1,6 @@
 # ansible playbook to configure server
 ---
-- hosts: webserver
+- hosts: servers
   become: yes
   become_method: sudo
 

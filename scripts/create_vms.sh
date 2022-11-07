@@ -6,45 +6,55 @@ TID=1570
 CPU=0.1
 VCPU=3
 RAM='1024m'
-CUSER=$(cat ../.env | grep CLOUD_USER | cut -d "=" -f2)
-CPASS=$(cat ../.env | grep CLOUD_PASS | cut -d "=" -f2)
-SRV_PASS=$(cat ../.env | grep SRV_PASS | cut -d "=" -f2)
+BASE_DIR=$(readlink -f "$(dirname "$0")")
+CUSER=$(cat $BASE_DIR/../.env | grep CLOUD_USER | cut -d "=" -f2)
+CPASS=$(cat $BASE_DIR/../.env | grep CLOUD_PASS | cut -d "=" -f2)
+SRV_PASS=$(cat $BASE_DIR/../.env | grep SRV_PASS | cut -d "=" -f2)
+SRV_1=''
+SRV_2=''
 
-CVMREZ=$(onetemplate instantiate $TID --name testas --cpu $CPU  --vcpu $VCPU --memory $RAM --user $CUSER --password $CPASS --endpoint $CENDPOINT)
-CVMID=$(echo $CVMREZ |cut -d ' ' -f 3)
-echo $CVMID
+# Create 2 VMs
+for i in {1..2}
+do
+    echo "Creating VM $i"
+    CVMREZ=$(onetemplate instantiate $TID --name testas --cpu $CPU  --vcpu $VCPU --memory $RAM --user $CUSER --password $CPASS --endpoint $CENDPOINT)
+    CVMID=$(echo $CVMREZ |cut -d ' ' -f 3)
+    echo $CVMID
 
-echo "Waiting for VMs to RUN: 40 sec."
-sleep 40
+    echo "Waiting for VMs to RUN: 40 sec."
+    sleep 40
 
-onevm show $CVMID --user $CUSER --password $CPASS --endpoint $CENDPOINT >$CVMID.txt
-CSSH_CON=$(cat $CVMID.txt | grep 'CONNECT_INFO1' | cut -d '=' -f 2 | tr -d '"')
-CSSH_PRIP=$(cat $CVMID.txt | grep 'PRIVATE_IP' | cut -d '=' -f 2 | tr -d '"')
-#CSSH_PORT=$(cat $CVMID.txt | grep 'TCP_PORT_FORWARDING' | cut -d '=' -f 2 | tr -d '"' | cut -d ':' -f1)
-PORT=$(cat $CVMID.txt | grep 'TCP_PORT_FORWARDING' | cut -d '=' -f 2 | tr -d '"' | cut -d ':' -f 2 | cut -d ' ' -f 2 )
+    onevm show $CVMID --user $CUSER --password $CPASS --endpoint $CENDPOINT >$CVMID.txt
+    CSSH_CON=$(cat $CVMID.txt | grep 'CONNECT_INFO1' | cut -d '=' -f 2 | tr -d '"')
+    CSSH_PRIP=$(cat $CVMID.txt | grep 'PRIVATE_IP' | cut -d '=' -f 2 | tr -d '"')
 
-echo "Connection string: $CSSH_CON"
-echo "IP: $CSSH_PRIP"
-echo $CVMID >>../vms.txt
-#echo "Port: $CSSH_PORT"
+    echo "IP: $CSSH_PRIP"
+    echo $CVMID >> $BASE_DIR/../vms.txt
+    SRV_$i=$CSSH_PRIP
+
+    ssh-keygen -f "/home/$CUSER/.ssh/known_hosts" -R $CSSH_PRIP
+    ssh-keygen -f "/root/.ssh/known_hosts" -R $CSSH_PRIP
+    if [ -f "/home/$CUSER/.ssh/id_rsa.pub" ]; then
+        cp /home/$CUSER/.ssh/id_rsa.pub $BASE_DIR/../celery-queue/anisble/keys/id_rsa.pub
+        cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/../celery-queue/anisble/keys/id_rsa
+        echo "Key exists."
+    else
+        ssh-keygen -t rsa -f "/home/$CUSER/.ssh/id_rsa" -q -N ""
+        cp /home/$CUSER/.ssh/id_rsa.pub $BASE_DIR/../celery-queue/anisble/keys/id_rsa.pub
+        cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/../celery-queue/anisble/keys/id_rsa
+        echo "Key created."
+    fi
+
+    sshpass -p $SRV_PASS ssh-copy-id -o StrictHostKeyChecking=no -i /home/$CUSER/.ssh/id_rsa.pub $CUSER@$CSSH_PRIP
+done
 
 
-ssh-keygen -f "/home/$CUSER/.ssh/known_hosts" -R $CSSH_PRIP
-ssh-keygen -f "/root/.ssh/known_hosts" -R $CSSH_PRIP
-if [ -f "/home/$CUSER/.ssh/id_rsa.pub" ]; then
-    echo "Key exists."
-else
-    ssh-keygen -t rsa -f "/home/$CUSER/.ssh/id_rsa" -q -N ""
-fi
-
-sshpass -p $SRV_PASS ssh-copy-id -o StrictHostKeyChecking=no -i /home/$CUSER/.ssh/id_rsa.pub $CUSER@$CSSH_PRIP
+echo "SRV1_IP=$SRV_1" >> $BASE_DIR/../.env
+echo "SRV2_IP=$SRV_2" >> $BASE_DIR/../.env
 
 
+echo "[servers]" > hosts
+echo "$CUSER@$SRV_1 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
+echo "$CUSER@$SRV_2 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
 
-
-echo "[webserver]" > inventory
-echo "$CUSER@$CSSH_PRIP ansible_port=22 ansible_ssh_private_key_file=/home/$CUSER/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> inventory
-
-sudo cp inventory /home/edsa6402/ansible/inventory
-
-sshpass -p $SRV_PASS ssh $CUSER@$CSSH_PRIP "mkdir -p ~/test"
+sudo cp hosts $BASE_DIR/../celery-queue/anisble/inventory
