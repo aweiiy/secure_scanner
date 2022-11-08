@@ -291,6 +291,6 @@ def create_pdf(report_id: int):
     pdf.print_scan(1, 'NMAP SCAN', f'reports/{report_id}/nmap.txt', link=scan1_link)
     pdf.print_scan(2, 'NIKTO SCAN', f'reports/{report_id}/nikto.txt', link=scan2_link)
     pdf.print_scan(3, 'DIRB SCAN', f'reports/{report_id}/dirb.txt', link=scan3_link)
-    pdf.print_scan(4, 'MISC SCAN', f'reports/{report_id}/misc.txt', link=scan4_link)
+    pdf.print_scan(4, 'MISC SCAN', f'reports/{report_id}/wp.txt', link=scan4_link)
 
     pdf.output(f'reports/{report_id}/Generated_Report.pdf', 'F')

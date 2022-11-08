@@ -29,7 +29,7 @@ services:
   monitor:
     build:
       context: ./celery-queue
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     ports:
      - "5555:5555"
     command:  ['celery', 'flower', '-A', 'tasks']

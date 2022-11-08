@@ -1,6 +1,6 @@
 # ansible playbook to configure server
 ---
-- hosts: servers
+- hosts: server1, server2
   become: yes
   become_method: sudo
 
