@@ -47,7 +47,7 @@ do
         cp /home/$CUSER/.ssh/id_rsa $BASE_DIR/celery-queue/ansible/keys/id_rsa
         echo "Key created."
     fi
-
+    sleep 10
     sshpass -p $SRV_PASS ssh-copy-id -o StrictHostKeyChecking=no -i /home/$CUSER/.ssh/id_rsa.pub $CUSER@$CSSH_PRIP
 done
 

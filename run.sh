@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+#use this script to run the project by running sudo bash run.sh
 #get the current script directory
 BASE_DIR=$(readlink -f "$(dirname "$0")")
 #initial update and upgrade
@@ -21,22 +22,31 @@ echo "Installing opennebula."#TODO: add base_dir to the script
 . $BASE_DIR/scripts/opennebula.sh
 echo "Opennebula installed."
 
-#fill env variables with user input
-echo "Please enter the username for the servers:"
-read SRV_USER
-echo "Please enter the password for the servers:"
-read SRV_PASS
-echo "Please enter the username for Opennebula:"
-read CLOUD_USER
-echo "Please enter the password for Opennebula:"
-read CLOUD_PASS
+if [ -f "$BASE_DIR/.env" ]; then
+    echo "File exists."
+else
+    #fill env variables with user input
+    echo "Please enter the username for the servers:"
+    read SRV_USER
+    echo "Please enter the password for the servers:"
+    stty -echo
+    read SRV_PASS
+    stty echo
+    echo "Please enter the username for Opennebula:"
+    read CLOUD_USER
+    echo "Please enter the password for Opennebula:"
+    stty -echo
+    read CLOUD_PASS
+    stty echo
 
-#create .env file
-echo "Creating .env file."
-echo "SRV_USER=$SRV_USER" > .env
-echo "SRV_PASS=$SRV_PASS" >> .env
-echo "CLOUD_USER=$CLOUD_USER" >> .env
-echo "CLOUD_PASS=$CLOUD_PASS" >> .env
+    #create .env file
+    echo "Creating .env file."
+    echo "SRV_USER=$SRV_USER" > .env
+    echo "SRV_PASS=$SRV_PASS" >> .env
+    echo "CLOUD_USER=$CLOUD_USER" >> .env
+    echo "CLOUD_PASS=$CLOUD_PASS" >> .env
+    echo "TOTAL_SCANS=4" >> .env
+fi
 
 
 
