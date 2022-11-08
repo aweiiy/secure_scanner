@@ -16,6 +16,7 @@ celery = Celery('tasks', broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND
 @celery.task(name='tasks.generate_report')
 def generate_report(website_name: str, report_id: int) -> str:
     #time.sleep(5)
+    total_scans = int(os.environ.get('TOTAL_SCANS'))
     ansible_playbook(website_name, report_id)
     counter = 0
     while True:
@@ -25,10 +26,10 @@ def generate_report(website_name: str, report_id: int) -> str:
             r = requests.get(url=URL)
             counter = 0
 
-        URL = f'http://web:5001/api/count_files/{report_id}'
+        URL = f'http://web:5001/api/count_files/{report_id}' #get number of files that have been uploaded by ansible hosts
         r = requests.get(url = URL)
         data = r.json()
-        if data == 2:
+        if data == total_scans: #check if all scans are done by checking the number of files in the report folder
             URL = f'http://web:5001/api/merge_files'
             requests.post(url = URL, data = {'report_id': report_id}, auth=HTTPBasicAuth('admin', 'admin'))
             break
@@ -47,8 +48,14 @@ def ansible_playbook(website_name: str, report_id: int) -> None:
     ansible_sudo_pass = os.environ.get('SRV_PASS')
     host_url = os.environ.get('HOST_URL')
 
-    subprocess.run([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 {name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" {host_url}/api/add/{report_id}"'], shell=True)
-    subprocess.run([f'ansible server2 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it frapsoft/nikto -host {name} > /tmp/nikto.txt ; curl -u admin:admin -F "file=@/tmp/nikto.txt" {host_url}/api/add/{report_id}"'], shell=True)
+    #nmap
+    subprocess.Popen([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 {name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
+    #nikto
+    subprocess.Popen([f'ansible server2 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it frapsoft/nikto -host {name} > /tmp/nikto.txt ; curl -u admin:admin -F "file=@/tmp/nikto.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
+    #gobuster
+    subprocess.Popen([f'ansible server2 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/dirb.txt; sudo docker run --rm -it ly4e/gobuster-docker dir -w /wordlists/common.txt -u http://{name} -z > /tmp/dirb.txt ; curl -u admin:admin -F "file=@/tmp/dirb.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
+    #wpscan
+    subprocess.Popen([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/wp.txt; sudo docker run --rm -it wpscanteam/wpscan --url {name} --enumerate u,p --random-user-agent > /tmp/wp.txt ; curl -u admin:admin -F "file=@/tmp/wp.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
 
 
     return f"Ansible playbook executed"

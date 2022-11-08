@@ -57,7 +57,8 @@ done
 echo "" >> $BASE_DIR/../.env
 echo "SRV1_IP=$SRV_1" >> $BASE_DIR/../.env
 echo "SRV2_IP=$SRV_2" >> $BASE_DIR/../.env
-echo "HOST_URL=$CSSH_PRIP" >> $BASE_DIR/../.env
+#get machine ip address
+echo "HOST_URL=http://$(hostname -I | cut -d ' ' -f 1):5001" >> $BASE_DIR/../.env
 
 
 echo "[servers]" > hosts

@@ -20,6 +20,7 @@ import re
 
 views = Blueprint('views', __name__)
 
+total_scans = int(os.environ.get('TOTAL_SCANS'))
 
 @views.route('/')
 @login_required
@@ -68,7 +69,7 @@ def generate_report():
             os.makedirs(f'reports/{report.id}')
         #copy test data to report folder
         #shutil.copyfile('reports/test_data/nmap.txt', f'reports/{report.id}/nmap.txt')
-        shutil.copyfile('reports/test_data/nikto.txt', f'reports/{report.id}/nikto.txt')
+        #shutil.copyfile('reports/test_data/nikto.txt', f'reports/{report.id}/nikto.txt')
         flash("Scan started, check back later for generated report.", category='success')
         return redirect(url_for('views.reports'))
         #return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"
@@ -184,7 +185,7 @@ def download_report(report_id: int) -> str:
 def count_files(report_id: int) -> str:
     report = Report.query.filter_by(id=report_id).first()
     if report:
-        if len(os.listdir(f'reports/{report.id}')) == 2:
+        if len(os.listdir(f'reports/{report.id}')) == total_scans:
             report.status = 'READY'
             db.session.commit()
         return jsonify(len(os.listdir(f'reports/{report.id}')))
@@ -200,7 +201,7 @@ def merge_reports() -> str:
         report = Report.query.filter_by(id=report_id).first()
         if report:
             files = os.listdir(f'reports/{report.id}')
-            if len(files) == 2:
+            if len(files) == total_scans:
                 with open(f'reports/{report.id}/merged.txt', 'w') as outfile:
                     if 'nmap.txt' in files:
                         with open(f'reports/{report.id}/nmap.txt') as infile:
@@ -210,6 +211,12 @@ def merge_reports() -> str:
                             outfile.write(infile.read())
                     if 'dirb.txt' in files:
                         with open(f'reports/{report.id}/dirb.txt') as infile:
+                            outfile.write(infile.read())
+                    if 'gobuster.txt' in files:
+                        with open(f'reports/{report.id}/gobuster.txt') as infile:
+                            outfile.write(infile.read())
+                    if 'wp.txt' in files:
+                        with open(f'reports/{report.id}/wp.txt') as infile:
                             outfile.write(infile.read())
 
 
@@ -256,6 +263,7 @@ def create_pdf(report_id: int):
     scan1_link = pdf.add_link()
     scan2_link = pdf.add_link()
     scan3_link = pdf.add_link()
+    scan4_link = pdf.add_link()
 
     # Set auto page break
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -275,11 +283,14 @@ def create_pdf(report_id: int):
     pdf.cell(0, 10, 'Scan 1: NMAP SCAN', ln=1, link=scan1_link)
     pdf.cell(0, 10, 'Scan 2: NIKTO SCAN', ln=1, link=scan2_link)
     pdf.cell(0, 10, 'Scan 3: DIRB SCAN', ln=1, link=scan3_link)
+    pdf.cell(0, 10, 'Scan 4: MISC SCAN', ln=1, link=scan4_link)
 
     # get total page numbers
     pdf.alias_nb_pages(alias='nb')
 
     pdf.print_scan(1, 'NMAP SCAN', f'reports/{report_id}/nmap.txt', link=scan1_link)
     pdf.print_scan(2, 'NIKTO SCAN', f'reports/{report_id}/nikto.txt', link=scan2_link)
+    pdf.print_scan(3, 'DIRB SCAN', f'reports/{report_id}/dirb.txt', link=scan3_link)
+    pdf.print_scan(4, 'MISC SCAN', f'reports/{report_id}/misc.txt', link=scan4_link)
 
     pdf.output(f'reports/{report_id}/Generated_Report.pdf', 'F')
