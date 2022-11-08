@@ -1,5 +1,5 @@
 #!/bin/sh
-
+BASE_DIR=$(readlink -f "$(dirname "$0")")
 #initial update and upgrade
 sudo apt update
 sudo apt upgrade -y
@@ -13,6 +13,16 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-compose -y
 sudo systemctl enable --now docker
 sudo usermod -aG docker $USER
 newgrp docker
+sudo apt-get install sshpass -y
+
+echo "Docker installed."
+echo "Installing opennebula."
+source $BASE_DIR/scripts/opennebula.sh
+echo "Opennebula installed."
+
+source $BASE_DIR/scripts/create_vms.sh
+echo "VMs created."
+
 #launch docker-compose
 sudo docker-compose up -d --build
-sudo docker-compose -f docker-compose.yml -f docker-compose.development.yml up --build
+sudo docker-compose -f docker-compose.development.yml up --build

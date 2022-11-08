@@ -63,9 +63,9 @@ echo "HOST_URL=http://$(hostname -I | cut -d ' ' -f 1):5001" >> $BASE_DIR/../.en
 
 echo "[servers]" > hosts
 echo "[server1]" >> hosts
-echo "$CUSER@$SRV_1 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
+echo "$CUSER@$SRV_1 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_sudo_pass=$SRV_PASS" >> hosts
 echo "[server2]" >> hosts
-echo "$CUSER@$SRV_2 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_su_pass=$SRV_PASS" >> hosts
+echo "$CUSER@$SRV_2 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_rsa ansible_sudo_pass=$SRV_PASS" >> hosts
 
 sudo cp hosts $BASE_DIR/../celery-queue/ansible/inventory
 

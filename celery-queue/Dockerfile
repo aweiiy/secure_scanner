@@ -35,9 +35,6 @@ RUN chmod 644 hosts && chown root:root hosts
 WORKDIR /
 
 
-#RUN sshpass -p ${SRV_PASS} ssh-copy-id -o StrictHostKeyChecking=no ${SRV_USER}@${SRV1_IP}
-#RUN sshpass -p ${SRV_PASS} ssh-copy-id -o StrictHostKeyChecking=no ${SRV_USER}@${SRV2_IP}
-
 
 ENV CELERY_BROKER_URL redis://redis:6379/0
 ENV CELERY_RESULT_BACKEND redis://redis:6379/0
@@ -49,3 +46,4 @@ WORKDIR /queue
 RUN pip install -U setuptools pip
 RUN pip install -r requirements.txt
 
+RUN ansible-playbook ./ansible/configure_server.yml
