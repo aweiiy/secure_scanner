@@ -55,7 +55,7 @@ def ansible_playbook(website_name: str, report_id: int) -> None:
     #gobuster
     subprocess.Popen([f'ansible server2 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/dirb.txt; sudo docker run --rm -it ly4e/gobuster-docker dir -w /wordlists/common.txt -u http://{name} -z > /tmp/dirb.txt ; curl -u admin:admin -F "file=@/tmp/dirb.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
     #wpscan
-    subprocess.Popen([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/wp.txt; sudo docker run --rm -it wpscanteam/wpscan --url {name} --enumerate u,p --random-user-agent > /tmp/wp.txt ; curl -u admin:admin -F "file=@/tmp/wp.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
+    subprocess.Popen([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/wp.txt; sudo docker run --rm -it wpscanteam/wpscan --url {name} --enumerate u,p --random-user-agent --update > /tmp/wp.txt ; curl -u admin:admin -F "file=@/tmp/wp.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
 
 
     return f"Ansible playbook executed"
