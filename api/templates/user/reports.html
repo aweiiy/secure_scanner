@@ -62,7 +62,9 @@
   });
   $(document).ready(function () {
 
-    $('#reports_table').DataTable();
+    $('#reports_table').DataTable({
+        "order": [[ 0, "desc" ]]
+        });
 
 });
 </script> {% endblock %}
