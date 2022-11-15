@@ -1,4 +1,6 @@
-{% extends "user/profile_base.html" %} {% block title %}Reports{% endblock %} {% block profile_content %} <div class="col-12">
+{% extends "user/profile_base.html" %} {% block title %}Reports{% endblock %}
+{% block profile_content %}
+<div class="col-12">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
@@ -7,10 +9,8 @@
       <li class="breadcrumb-item active" aria-current="page">Reports</li>
     </ol>
   </nav>
-  <div class="table-responsive"><!-- todo: let users sortby -->
-    {{ pagination.info }}
-    {{ pagination.links }}
-    <table class="table table-striped table-hover">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover" id="reports_table">
       <thead>
         <tr>
           <th scope="col">Report ID</th>
@@ -36,10 +36,12 @@
           </td>
         </tr> {% endfor %} {% endif %} </tbody>
     </table>
-    {{ pagination.info }}
-    {{ pagination.links }}
   </div>
-</div> {% endblock %} {% block scripts %} <script>
+</div> {% endblock %} {% block scripts %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+<script>
   $(document).ready(function() {
     $('.check_button').click(function() {
       var task_id = $(this).data('task_id');
@@ -58,4 +60,9 @@
       });
     });
   });
+  $(document).ready(function () {
+
+    $('#reports_table').DataTable();
+
+});
 </script> {% endblock %}

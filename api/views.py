@@ -31,10 +31,10 @@ def home():
 @views.route('/reports')
 @login_required
 def reports():
-    page = request.args.get(get_page_parameter(), type=int, default=1)
-    Reports = Report.query.filter_by(user_id=current_user.id).order_by(Report.id.desc())
-    pagination = Pagination(page=page, total=Reports.count(), search=False, record_name='reports', per_page=10)
-    return render_template("user/reports.html", user=current_user, reports=Reports.paginate(page=page, per_page=10).items, pagination=pagination)
+    #page = request.args.get(get_page_parameter(), type=int, default=1)
+    #Reports = Report.query.filter_by(user_id=current_user.id).order_by(Report.id.desc())
+    #pagination = Pagination(page=page, total=Reports.count(), search=False, record_name='reports', per_page=10)
+    return render_template("user/reports.html", user=current_user, reports=current_user.reports)
 
 @views.route('/reports/<report_id>')
 @login_required
@@ -52,8 +52,12 @@ def show_report(report_id):
 @login_required
 def generate_report():
     data = request.form
-    patern = re.compile(r'[a-zA-Z]+://([A-Za-z0-9]+(\.[A-Za-z0-9]+)+)', re.IGNORECASE)
-    website_name = patern.match(data.get('website').lower()).group(0)
+    try:
+        patern = re.compile(r'[a-zA-Z]+://([A-Za-z0-9]+(\.[A-Za-z0-9]+)+)', re.IGNORECASE)
+        website_name = patern.match(data.get('website').lower()).group(0)
+    except:
+        flash("Invalid URL", category='error')
+        return redirect(url_for('views.home'))
     if validators.url(website_name):
         report = Report(name=website_name, task_id='' , user_id=current_user.id)
         db.session.add(report)
@@ -70,6 +74,8 @@ def generate_report():
         #copy test data to report folder
         #shutil.copyfile('reports/test_data/nmap.txt', f'reports/{report.id}/nmap.txt')
         #shutil.copyfile('reports/test_data/nikto.txt', f'reports/{report.id}/nikto.txt')
+        #shutil.copyfile('reports/test_data/dirb.txt', f'reports/{report.id}/dirb.txt')
+        #shutil.copyfile('reports/test_data/wp.txt', f'reports/{report.id}/wp.txt')
         flash("Scan started, check back later for generated report.", category='success')
         return redirect(url_for('views.reports'))
         #return f"<a href='{url_for('views.taskstatus', task_id=task.id)}'>check status of {website_name} report </a>"

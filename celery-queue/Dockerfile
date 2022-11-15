@@ -47,3 +47,5 @@ RUN pip install -U setuptools pip
 RUN pip install -r requirements.txt
 
 RUN ansible-playbook ./ansible/configure_server.yml
+
+CMD watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery -A tasks worker --concurrency=1 --loglevel=INFO -E

@@ -120,9 +120,10 @@ def change_role() -> str:
 @login_required
 def reports():
     if current_user.role == 1:
-        page = request.args.get(get_page_parameter(), type=int, default=1)
-        pagination = Pagination(page=page, total=Report.query.count(), search=False, record_name='reports', per_page=10)
-        return render_template("admin/report_manager.html", user=current_user, reports=Report.query.paginate(page=page, per_page=10).items, pagination=pagination)
+        #page = request.args.get(get_page_parameter(), type=int, default=1)
+        #pagination = Pagination(page=page, total=Report.query.count(), search=False, record_name='reports', per_page=10)
+        reports = Report.query.all()
+        return render_template("admin/report_manager.html", user=current_user, reports=reports)
     else:
         flash("You are not an admin.", category='error')
         return redirect(url_for('views.home'))
@@ -136,6 +137,20 @@ def show_report(report_id: int) -> str:
             return render_template("admin/report_view.html", user=current_user, report=report)
         else:
             return "Report not found"
+    else:
+        flash("You are not an admin.", category='error')
+        return redirect(url_for('views.home'))
+
+
+@admin.route('/users/<int:user_id>/reports')
+@login_required
+def show_user_reports(user_id: int) -> str:
+    if current_user.role == 1:
+        user = User.query.filter_by(id=user_id).first()
+        if user:
+            return render_template("admin/user_reports.html", user=current_user, reports=user.reports)
+        else:
+            return "User not found"
     else:
         flash("You are not an admin.", category='error')
         return redirect(url_for('views.home'))
