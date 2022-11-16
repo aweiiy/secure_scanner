@@ -13,7 +13,7 @@
   <div class="form-group">
     <div class="col-sm-6">
       <form method="post" action="/profile/update" id="change-password-form">
-          <input type="hidden" name="user_id" value="{{ user.id }}">
+          <input type="hidden" id="user_id" value="{{ user.id }}">
         <div class="mb-3">
           <label for="current_password" class="form-label">Current password</label>
           <input type="password" class="form-control" id="current_password" placeholder="Enter current password">
