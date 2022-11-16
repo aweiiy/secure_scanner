@@ -68,9 +68,9 @@ def profile():
 
 @auth.route('/profile/update', methods=['POST'])
 @login_required
-def update_profile(id: int):
+def update_profile():
     data = request.form
-    if current_user.id == id:
+    if current_user.id == data.get('user_id'):
         password = data.get('password')
         confirm_password = data.get('confirm_password')
 
@@ -84,6 +84,9 @@ def update_profile(id: int):
             flash("Successfully updated the account", category='success')
 
         return render_template("user/acc_manage.html", user=current_user)
+    else:
+        flash("You are not allowed to do this.", category='error')
+        return render_template("views.home", user=current_user)
 @auth.route('/profile/delete')
 @login_required
 def delete_profile():
@@ -99,6 +102,6 @@ def delete_profile():
         else:
             flash("Password is incorrect", category='error')
     else:
-        flash("You are not allowed to delete this account", category='error')
+        flash("You are not allowed to do this.", category='error')
         return redirect(url_for('views.home'))
 
