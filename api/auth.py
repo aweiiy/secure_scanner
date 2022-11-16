@@ -68,25 +68,27 @@ def profile():
 
 @auth.route('/profile/update', methods=['POST'])
 @login_required
-def update_profile():
+def update_password():
     data = request.form
     if current_user.id == data.get('user_id'):
-        password = data.get('password')
+        current_password = data.get('current_password')
+        new_password = data.get('new_password')
         confirm_password = data.get('confirm_password')
 
-        if password != confirm_password:
-            flash("Passwords do not match", category='error')
-        elif len(password) < 8:
-            flash("Password is too short, it must be 8 characters or more", category='error')
+        if check_password_hash(current_user.password, current_password):
+            if new_password == confirm_password:
+                if len(new_password) < 8:
+                    flash("Password is too short, it must be 8 characters or more", category='error')
+                else:
+                    current_user.password = generate_password_hash(new_password, method='sha256')
+                    db.session.commit()
+                    flash("Password updated successfully", category='success')
+            else:
+                flash("Passwords do not match", category='error')
         else:
-            current_user.password = generate_password_hash(password, method='sha256')
-            db.session.commit()
-            flash("Successfully updated the account", category='success')
-
-        return render_template("user/acc_manage.html", user=current_user)
+            flash("Current password is incorrect", category='error')
     else:
         flash("You are not allowed to do this.", category='error')
-        return redirect(url_for('views.home'))
 @auth.route('/profile/delete')
 @login_required
 def delete_profile():
