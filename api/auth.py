@@ -99,16 +99,25 @@ def update_password():
 def delete_profile():
     user = User.query.filter_by(id=current_user.id).first()
     if user == current_user:
-        data = request.form
-        password = data.get('password')
         if check_password_hash(user.password, password):
+            reports = Report.query.filter_by(user_id=current_user.id).all()
+            for report in reports:
+                if report.status == 'pending':
+                    celery.control.revoke(report.task_id, terminate=True)
+                    db.session.delete(report)
+                    db.session.commit()
             db.session.delete(user)
             db.session.commit()
-            flash("Successfully deleted the account", category='success')
+            flash("Account deleted successfully", category='success')
             return redirect(url_for('auth.login'))
         else:
-            flash("Password is incorrect", category='error')
+            flash("Incorrect password", category='error')
     else:
-        flash("You are not allowed to do this.", category='error')
-        return redirect(url_for('views.home'))
+        flash("Something went wrong", category='error')
+        return redirect(url_for('auth.profile'))
+    #TODO: Finish this function
+
+
+
+
 
