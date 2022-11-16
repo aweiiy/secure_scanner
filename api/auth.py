@@ -86,7 +86,7 @@ def update_profile():
         return render_template("user/acc_manage.html", user=current_user)
     else:
         flash("You are not allowed to do this.", category='error')
-        return render_template("views.home", user=current_user)
+        return render_template(url_for('views.home'), user=current_user)
 @auth.route('/profile/delete')
 @login_required
 def delete_profile():
