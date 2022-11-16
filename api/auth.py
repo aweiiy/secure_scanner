@@ -74,26 +74,24 @@ def update_password():
         current_password = data.get('current_password')
         new_password = data.get('new_password')
         confirm_password = data.get('password_confirmation')
+        user = User.query.filter_by(id=current_user.id).first()
 
         if check_password_hash(current_user.password, current_password):
             if new_password == confirm_password:
                 if len(new_password) < 8:
                     flash("Password is too short, it must be 8 characters or more", category='error')
-                    return redirect(url_for('auth.profile'))
                 else:
-                    current_user.password = generate_password_hash(new_password, method='sha256')
+                    user.password = generate_password_hash(new_password, method='sha256')
                     db.session.commit()
                     flash("Password updated successfully", category='success')
-                    return redirect(url_for('auth.profile'))
             else:
                 flash("Passwords do not match", category='error')
-                return redirect(url_for('auth.profile'))
         else:
-            flash("Current password is incorrect", category='error')
-            return redirect(url_for('auth.profile'))
+            flash("Incorrect password", category='error')
     else:
-        flash("You are not allowed to do this.", category='error')
-        return redirect(url_for('auth.profile'))
+        flash("Something went wrong", category='error')
+    return redirect(url_for('auth.profile'))
+
 
 
 @auth.route('/profile/delete', methods=['POST'])
