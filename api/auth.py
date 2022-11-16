@@ -71,33 +71,33 @@ def profile():
 def update_profile(id: int):
     data = request.form
     if current_user.id == id:
-        email = data.get('email')
         password = data.get('password')
         confirm_password = data.get('confirm_password')
 
-        if len(email) < 4:
-            flash("Email length must be greater than 4 characters", category='error')
-        elif password != confirm_password:
+        if password != confirm_password:
             flash("Passwords do not match", category='error')
         elif len(password) < 8:
             flash("Password is too short, it must be 8 characters or more", category='error')
         else:
-            current_user.email = email
             current_user.password = generate_password_hash(password, method='sha256')
             db.session.commit()
             flash("Successfully updated the account", category='success')
 
-        return render_template("user/profile_base.html", user=current_user)
+        return render_template("user/acc_manage.html", user=current_user)
 @auth.route('/profile/delete')
 @login_required
 def delete_profile():
     user = User.query.filter_by(id=current_user.id).first()
     if user == current_user:
-        db.session.delete(user)
-        db.session.commit()
-        logout_user()
-        flash("Account deleted successfully", category='success')
-        return redirect(url_for('auth.login'))
+        data = request.form
+        password = data.get('password')
+        if check_password_hash(user.password, password):
+            db.session.delete(user)
+            db.session.commit()
+            flash("Successfully deleted the account", category='success')
+            return redirect(url_for('auth.login'))
+        else:
+            flash("Password is incorrect", category='error')
     else:
         flash("You are not allowed to delete this account", category='error')
         return redirect(url_for('views.home'))
