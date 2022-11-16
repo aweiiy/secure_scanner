@@ -66,7 +66,7 @@ def profile():
     return render_template("user/acc_manage.html", user=current_user)
 
 
-@auth.route('/profile/update', methods=['POST'])
+@auth.route('/profile/update-password', methods=['POST'])
 @login_required
 def update_password():
     data = request.form
