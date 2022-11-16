@@ -79,16 +79,21 @@ def update_password():
             if new_password == confirm_password:
                 if len(new_password) < 8:
                     flash("Password is too short, it must be 8 characters or more", category='error')
+                    return redirect(url_for('auth.profile'))
                 else:
                     current_user.password = generate_password_hash(new_password, method='sha256')
                     db.session.commit()
                     flash("Password updated successfully", category='success')
+                    return redirect(url_for('auth.profile'))
             else:
                 flash("Passwords do not match", category='error')
+                return redirect(url_for('auth.profile'))
         else:
             flash("Current password is incorrect", category='error')
+            return redirect(url_for('auth.profile'))
     else:
         flash("You are not allowed to do this.", category='error')
+        return redirect(url_for('auth.profile'))
 @auth.route('/profile/delete')
 @login_required
 def delete_profile():
