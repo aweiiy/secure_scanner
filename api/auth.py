@@ -73,7 +73,7 @@ def update_password():
     if current_user.id == data.get('user_id'):
         current_password = data.get('current_password')
         new_password = data.get('new_password')
-        confirm_password = data.get('confirm_password')
+        confirm_password = data.get('password_confirmation')
 
         if check_password_hash(current_user.password, current_password):
             if new_password == confirm_password:
@@ -94,7 +94,9 @@ def update_password():
     else:
         flash("You are not allowed to do this.", category='error')
         return redirect(url_for('auth.profile'))
-@auth.route('/profile/delete')
+
+
+@auth.route('/profile/delete', methods=['POST'])
 @login_required
 def delete_profile():
     user = User.query.filter_by(id=current_user.id).first()

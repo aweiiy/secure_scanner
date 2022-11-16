@@ -23,8 +23,8 @@
           <input type="password" class="form-control" id="new_password" placeholder="Enter new password">
         </div>
         <div class="mb-3">
-          <label for="confirm_new_password" class="form-label">Confirm new password</label>
-          <input type="password" class="form-control" id="confirm_new_password" placeholder="Confirm new password">
+          <label for="password_confirmation" class="form-label">Confirm new password</label>
+          <input type="password" class="form-control" id="password_confirmation" placeholder="Confirm new password">
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
@@ -41,21 +41,25 @@
   <div class="col-sm-6">
     <form method="post" action="/profile/delete" id="delete-account-form">
       <div class="mb-3">
-        <label for="current_password" class="form-label">Current password</label>
-        <input type="password" class="form-control" name="current_password" placeholder="Enter current password">
+        <label for="password" class="form-label">Current password</label>
+        <input type="password" class="form-control" name="password" placeholder="Enter current password">
       </div>
       <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your account?')">Delete account</button>
     </form>
   </div>
 </div>
-</form> {% endblock %} {% block scripts %} <script>
+</form>
+{% endblock %}
+
+{% block scripts %}
+    <script>
   $(document).ready(function() {
-    $("#change-password-form").validate({
+    $("#change_password_form").validate({
       rules: {
-        old_password: {
+        current_password: {
           required: true
         },
-        password: {
+        new_password: {
           required: true,
           minlength: 8
         },
