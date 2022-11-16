@@ -47,6 +47,12 @@ def show_report(report_id):
             else:
                 flash("Report is not ready yet", category='error')
                 return render_template("generating.html", user=current_user, report=report, task_id=report.task_id)
+        else:
+            flash("You don't have access to this report", category='error')
+            return redirect(url_for('views.reports'))
+    else:
+        flash("Report not found", category='error')
+        return redirect(url_for('views.reports'))
 
 @views.route('/api/genereate_report', methods=['POST'])
 @login_required
