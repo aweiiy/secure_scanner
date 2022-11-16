@@ -70,7 +70,7 @@ def profile():
 @login_required
 def update_password():
     data = request.form
-    if current_user.id == data.get('user_id'):
+    if current_user.id == int(data.get('user_id')):
         current_password = data.get('current_password')
         new_password = data.get('new_password')
         confirm_password = data.get('password_confirmation')
