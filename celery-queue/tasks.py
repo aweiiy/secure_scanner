@@ -49,7 +49,7 @@ def ansible_playbook(website_name: str, report_id: int) -> None:
     host_url = os.environ.get('HOST_URL')
 
     #nmap
-    subprocess.Popen([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -A -p 5001 -T4 {name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
+    subprocess.Popen([f'ansible server1 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it instrumentisto/nmap -sS -sV -p- {name} > /tmp/nmap.txt ; curl -u admin:admin -F "file=@/tmp/nmap.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
     #nikto
     subprocess.Popen([f'ansible server2 -m shell -b -e ansible_sudo_pass={ansible_sudo_pass} -a "sudo rm /tmp/nmap.txt; sudo docker run --rm -it frapsoft/nikto -host {name} > /tmp/nikto.txt ; curl -u admin:admin -F "file=@/tmp/nikto.txt" {host_url}/api/add/{report_id}"'], shell=True, stdin=None, stdout=None, stderr=None)
     #gobuster
