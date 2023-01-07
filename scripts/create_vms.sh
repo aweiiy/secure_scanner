@@ -67,3 +67,4 @@ echo "$CUSER@$SRV_2 ansible_port=22 ansible_ssh_private_key_file=/root/.ssh/id_r
 
 sudo cp hosts $BASE_DIR/celery-queue/ansible/inventory
 
+echo "remote_user=$CUSER" >> $BASE_DIR/celery-queue/ansible/cfg/ansible.cfg
