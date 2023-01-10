@@ -18,7 +18,7 @@ echo "exit" | newgrp docker
 sudo apt-get install sshpass -y
 
 echo "Docker installed."
-echo "Installing opennebula."#TODO: add base_dir to the script
+echo "Installing opennebula."
 . $BASE_DIR/scripts/opennebula.sh
 echo "Opennebula installed."
 
@@ -26,18 +26,19 @@ if [ -f "$BASE_DIR/.env" ]; then
     echo "File exists."
 else
     #fill env variables with user input
-    echo "Please enter the username for the servers:"
-    read SRV_USER
-    echo "Please enter the password for the servers:"
-    stty -echo
-    read SRV_PASS
-    stty echo
     echo "Please enter the username for Opennebula:"
     read CLOUD_USER
     echo "Please enter the password for Opennebula:"
     stty -echo
     read CLOUD_PASS
     stty echo
+    echo "Please enter the username for the virtual machines in opennebula:"
+    read SRV_USER
+    echo "Please enter the password for the virtual machines in opennebula:"
+    stty -echo
+    read SRV_PASS
+    stty echo
+
 
     #create .env file
     echo "Creating .env file."
@@ -50,10 +51,8 @@ fi
 
 
 
-
-
 . $BASE_DIR/scripts/create_vms.sh
 echo "VMs created."
 
 #launch docker-compose
-sudo docker-compose -f docker-compose.development.yml up --build
+sudo docker-compose -f docker-compose.yml up --build

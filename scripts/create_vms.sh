@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-#TODO: fix base_dir to the script
 CENDPOINT=https://grid5.mif.vu.lt/cloud3/RPC2
 TID=1570
 CPU=0.1

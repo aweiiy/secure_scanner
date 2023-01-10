@@ -115,7 +115,7 @@ def delete_profile():
     else:
         flash("Something went wrong", category='error')
         return redirect(url_for('auth.profile'))
-    #TODO: Finish this function
+
 
 
 

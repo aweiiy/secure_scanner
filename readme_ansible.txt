@@ -1,1 +1,0 @@
-change remote_user in celery-queue/ansible/cfg/ansible.cfg

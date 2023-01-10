@@ -4,7 +4,7 @@ services:
     env_file: .env
     build:
       context: ./api
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     environment:
       FLASK_DEBUG: "on"
       FLASK_APP: ./main.py
@@ -25,20 +25,6 @@ services:
       CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
-    volumes: ['./celery-queue:/queue']
-  monitor:
-    build:
-      context: ./celery-queue
-      dockerfile: Dockerfile
-    ports:
-     - "5555:5555"
-    command:  ['celery', 'flower', '-A', 'tasks']
-    environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
-    depends_on:
-      - redis
-      - worker
     volumes: ['./celery-queue:/queue']
   redis:
     image: redis:alpine
